@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg-color: #ffffff;
+        --border-color: #cbd5e1;
+        --red-primary: #dc2626;
+        --red-hover: #b91c1c;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        padding: 24px;
+      }
+      .header-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 18px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      .icon-box {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: #fef2f2;
+        border: 1px solid #fee2e2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+      }
+      h3 { font-size: 17px; font-weight: 800; color: #dc2626; letter-spacing: -0.01em; }
+      p.subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; font-weight: 500; }
+      .form-group { margin-bottom: 16px; }
+      label {
+        display: block;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: #334155;
+        letter-spacing: 0.05em;
+        margin-bottom: 6px;
+      }
+      select {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1.5px solid var(--border-color);
+        box-sizing: border-box;
+        font-size: 13px;
+        background-color: #f8fafc;
+        outline: none;
+        transition: all 0.2s;
+        font-weight: 600;
+      }
+      select:focus {
+        border-color: #dc2626;
+        background-color: #ffffff;
+        box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
+      }
+      .preview-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 14px;
+        margin-bottom: 16px;
+        display: none;
+      }
+      .preview-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        padding: 3.5px 0;
+      }
+      .preview-label { color: #64748b; font-weight: 600; }
+      .preview-value { color: #0f172a; font-weight: 700; }
+      .warning-box {
+        background: #fff1f2;
+        border: 1px solid #fecdd3;
+        border-radius: 12px;
+        padding: 12px 14px;
+        margin-bottom: 16px;
+        display: none;
+        gap: 10px;
+        align-items: flex-start;
+      }
+      .warning-box p {
+        font-size: 12px;
+        color: #9f1239;
+        line-height: 1.45;
+        font-weight: 500;
+      }
+      .warning-box strong { font-weight: 800; }
+      .cascade-check-container {
+        display: none;
+        margin-bottom: 14px;
+        padding: 10px 12px;
+        background: #fef2f2;
+        border: 1px dashed #f87171;
+        border-radius: 10px;
+      }
+      .check-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        user-select: none;
+      }
+      .check-label input {
+        width: 17px;
+        height: 17px;
+        accent-color: #dc2626;
+        cursor: pointer;
+      }
+      .check-label span {
+        font-size: 12px;
+        font-weight: 700;
+        color: #475569;
+      }
+      .btn-delete {
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 12px;
+        background-color: var(--red-primary);
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s;
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+      }
+      .btn-delete:hover:not(:disabled) {
+        background-color: var(--red-hover);
+        transform: translateY(-1px);
+      }
+      .btn-delete:disabled {
+        background-color: #cbd5e1;
+        cursor: not-allowed;
+        box-shadow: none;
+        color: #94a3b8;
+      }
+      #status {
+        margin-top: 14px;
+        font-size: 13px;
+        font-weight: 700;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header-card">
+      <div class="icon-box">
+        <svg class="icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#dc2626" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      </div>
+      <div>
+        <h3>Delete Borrower Record</h3>
+        <p class="subtitle">Safely remove member record with loan safeguards</p>
+      </div>
+    </div>
+
+    <form id="deleteBorrowerForm" onsubmit="submitDeleteBorrower(event)">
+      <div class="form-group">
+        <label>Select Borrower</label>
+        <select id="borrowerSelect" required onchange="onBorrowerSelectChange()">
+          <option value="">Loading borrowers...</option>
+        </select>
+      </div>
+
+      <!-- Preview Card -->
+      <div id="borrowerPreview" class="preview-card">
+        <div class="preview-row">
+          <span class="preview-label">Full Name:</span>
+          <span id="prevName" class="preview-value">-</span>
+        </div>
+        <div class="preview-row">
+          <span class="preview-label">Contact / Email:</span>
+          <span id="prevContact" class="preview-value">-</span>
+        </div>
+        <div class="preview-row">
+          <span class="preview-label">Address:</span>
+          <span id="prevAddress" class="preview-value">-</span>
+        </div>
+        <div class="preview-row">
+          <span class="preview-label">Active Loans:</span>
+          <span id="prevActiveLoans" class="preview-value" style="color:#1d4ed8;">0</span>
+        </div>
+        <div class="preview-row">
+          <span class="preview-label">Total Outstanding Balance:</span>
+          <span id="prevBal" class="preview-value" style="color:#dc2626;">₱0</span>
+        </div>
+      </div>
+
+      <!-- Warning Box for Active Balance -->
+      <div id="warningBox" class="warning-box">
+        <p id="warningText">
+          <strong>Active Loan Balance Detected:</strong> This borrower has active loans. Deleting this member will also require cascading the deletion of all their loans, amortization schedules, and payments.
+        </p>
+      </div>
+
+      <!-- Cascade Checkbox (Shown if active debt exists) -->
+      <div id="cascadeBox" class="cascade-check-container">
+        <label class="check-label">
+          <input type="checkbox" id="cascadeCheckbox" onchange="toggleDeleteButton()" />
+          <span style="color:#9f1239;">Cascade delete all loans, amortizations & payments for this borrower</span>
+        </label>
+      </div>
+
+      <!-- General Confirmation Checkbox -->
+      <label class="check-label" style="margin-bottom: 16px;">
+        <input type="checkbox" id="confirmCheckbox" onchange="toggleDeleteButton()" />
+        <span>I confirm that I want to delete this borrower record</span>
+      </label>
+
+      <button type="submit" id="deleteButton" class="btn-delete" disabled>
+        <span>Delete Borrower Record</span>
+      </button>
+
+      <div id="status"></div>
+    </form>
+
+    <script>
+      let borrowersList = [];
+
+      function formatMoney(val) {
+        const num = Math.round(Number(val || 0) * 100) / 100;
+        return '₱' + num.toLocaleString(undefined, {
+          minimumFractionDigits: (num % 1 === 0) ? 0 : 2,
+          maximumFractionDigits: 2
+        });
+      }
+
+      function onBorrowerSelectChange() {
+        const selId = document.getElementById('borrowerSelect').value;
+        const borrower = borrowersList.find(b => b.borrowerId === selId);
+        const preview = document.getElementById('borrowerPreview');
+        const warningBox = document.getElementById('warningBox');
+        const cascadeBox = document.getElementById('cascadeBox');
+        const cascadeCheckbox = document.getElementById('cascadeCheckbox');
+
+        if (!borrower) {
+          preview.style.display = 'none';
+          warningBox.style.display = 'none';
+          cascadeBox.style.display = 'none';
+          toggleDeleteButton();
+          return;
+        }
+
+        document.getElementById('prevName').innerText = borrower.borrowerName;
+        document.getElementById('prevContact').innerText = (borrower.phone || '') + (borrower.email ? ' | ' + borrower.email : '');
+        document.getElementById('prevAddress').innerText = borrower.address || '-';
+        document.getElementById('prevActiveLoans').innerText = borrower.activeLoanCount + ' active';
+        document.getElementById('prevBal').innerText = formatMoney(borrower.totalOutstandingBalance);
+        preview.style.display = 'block';
+
+        if (borrower.totalOutstandingBalance > 0 || borrower.activeLoanCount > 0) {
+          warningBox.style.display = 'flex';
+          cascadeBox.style.display = 'block';
+          document.getElementById('warningText').innerHTML = 
+            '<strong>Active Loans Detected:</strong> ' + borrower.borrowerName + ' has <strong>' + 
+            borrower.activeLoanCount + ' active loan(s)</strong> with an outstanding balance of <strong>' + 
+            formatMoney(borrower.totalOutstandingBalance) + '</strong>. To proceed, you must enable cascade deletion below.';
+        } else {
+          warningBox.style.display = 'none';
+          cascadeBox.style.display = 'none';
+          cascadeCheckbox.checked = false;
+        }
+
+        toggleDeleteButton();
+      }
+
+      function toggleDeleteButton() {
+        const selId = document.getElementById('borrowerSelect').value;
+        const borrower = borrowersList.find(b => b.borrowerId === selId);
+        const confirmed = document.getElementById('confirmCheckbox').checked;
+        const cascadeChecked = document.getElementById('cascadeCheckbox').checked;
+        const btn = document.getElementById('deleteButton');
+
+        if (!borrower || !confirmed) {
+          btn.disabled = true;
+          return;
+        }
+
+        const hasActiveDebt = borrower.totalOutstandingBalance > 0 || borrower.activeLoanCount > 0;
+        if (hasActiveDebt && !cascadeChecked) {
+          btn.disabled = true;
+          return;
+        }
+
+        btn.disabled = false;
+      }
+
+      // Fetch borrowers list
+      google.script.run
+        .withSuccessHandler(function(list) {
+          borrowersList = list || [];
+          const select = document.getElementById('borrowerSelect');
+          select.innerHTML = '';
+          if (!list || list.length === 0) {
+            select.innerHTML = '<option value="">-- No borrowers found --</option>';
+          } else {
+            select.innerHTML = '<option value="">-- Select a Borrower to Delete --</option>';
+            list.forEach(b => {
+              const balTag = b.totalOutstandingBalance > 0 ? ' [Bal: ' + formatMoney(b.totalOutstandingBalance) + ']' : ' [No Debt]';
+              select.innerHTML += `<option value="${b.borrowerId}">${b.borrowerId} - ${b.borrowerName} (${b.activeLoanCount} Loans${balTag})</option>`;
+            });
+          }
+
+          // Auto-select preselected borrower if passed
+          const targetBorrower = window.preselectedId || window.preselectedLoanId;
+          if (targetBorrower && borrowersList.some(b => b.borrowerId === targetBorrower)) {
+            select.value = targetBorrower;
+            onBorrowerSelectChange();
+          }
+        })
+        .withFailureHandler(function(err) {
+          console.error("Failed to load borrowers:", err);
+          const select = document.getElementById('borrowerSelect');
+          select.innerHTML = '<option value="">Error loading borrowers: ' + (err.message || err) + '</option>';
+        })
+        .getBorrowersForDeletion();
+
+      function submitDeleteBorrower(e) {
+        e.preventDefault();
+        const selId = document.getElementById('borrowerSelect').value;
+        if (!selId) return;
+
+        const borrower = borrowersList.find(b => b.borrowerId === selId);
+        const cascade = document.getElementById('cascadeCheckbox').checked;
+        const bName = borrower ? borrower.borrowerName : selId;
+
+        const btn = document.getElementById('deleteButton');
+        btn.disabled = true;
+        btn.innerHTML = '<span>Deleting borrower record...</span>';
+
+        const statusDiv = document.getElementById('status');
+        statusDiv.innerHTML = '<span style="color:#b91c1c;">Deleting ' + bName + '...</span>';
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            let msg = 'Success! Borrower ' + res.borrowerId + ' deleted.';
+            if (res.deletedLoansCount > 0) {
+              msg += ' (Cascaded: ' + res.deletedLoansCount + ' loans, ' + res.deletedAmortRows + ' amortization rows, ' + res.deletedPaymentRows + ' payments)';
+            }
+            statusDiv.innerHTML = '<span style="color:#059669;">' + msg + '</span>';
+            setTimeout(() => {
+              google.script.host.close();
+            }, 2000);
+          })
+          .withFailureHandler(function(err) {
+            statusDiv.innerHTML = '<span style="color:#dc2626;">Error: ' + err.message + '</span>';
+            btn.disabled = false;
+            btn.innerHTML = '<span>Delete Borrower Record</span>';
+          })
+          .processDeleteBorrower(selId, cascade);
+      }
+    </script>
+  </body>
+</html>

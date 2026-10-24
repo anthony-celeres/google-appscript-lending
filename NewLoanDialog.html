@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg-color: #ffffff;
+        --border-color: #cbd5e1;
+        --teal-primary: #0f766e;
+        --teal-hover: #115e59;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        padding: 24px;
+      }
+      .header-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      .icon-box {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+      }
+      h3 { font-size: 17px; font-weight: 800; color: #0f766e; letter-spacing: -0.01em; }
+      p.subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; font-weight: 500; }
+      .form-group { margin-bottom: 16px; }
+      label {
+        display: block;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #334155;
+        margin-bottom: 6px;
+      }
+      input, select {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1.5px solid #cbd5e1;
+        background-color: #ffffff;
+        color: var(--text-main);
+        font-size: 13.5px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+      }
+      input:focus, select:focus {
+        outline: none;
+        border-color: #0f766e;
+        box-shadow: 0 0 0 3.5px rgba(15, 118, 110, 0.15);
+      }
+      .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      .btn {
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 12px;
+        background-color: #0f766e;
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 14px;
+        cursor: pointer;
+        margin-top: 8px;
+        box-shadow: 0 4px 14px rgba(15, 118, 110, 0.25);
+        transition: all 0.2s ease;
+      }
+      .btn:hover {
+        background-color: #115e59;
+        box-shadow: 0 6px 18px rgba(15, 118, 110, 0.35);
+      }
+      /* Hide spin buttons for numbers to make them smoothly writable without up/down clicking */
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      input[type="number"] {
+        -moz-appearance: textfield;
+      }
+      #status {
+        margin-top: 14px;
+        font-size: 13px;
+        font-weight: 700;
+        text-align: center;
+        min-height: 22px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header-card">
+      <div class="icon-box">
+        <svg class="icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#0f766e" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </div>
+      <div>
+        <h3>Create New Loan & Schedule</h3>
+        <p class="subtitle">Annual Diminishing Amortization Engine</p>
+      </div>
+    </div>
+
+    <form id="loanForm" onsubmit="submitForm(event)">
+      <div class="form-group">
+        <label>Select Borrower</label>
+        <select id="borrowerSelect" required>
+          <option value="">Loading borrowers...</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Loan Category</label>
+        <select id="loanType" onchange="onLoanTypeChange()">
+          <option value="">Loading loan categories...</option>
+        </select>
+      </div>
+
+      <div class="grid">
+        <div class="form-group">
+          <label>Loan Amount (PHP)</label>
+          <input type="text" inputmode="decimal" id="amount" placeholder="Enter amount (e.g. 50,000)" required />
+        </div>
+        <div class="form-group">
+          <label>Tenure</label>
+          <select id="tenureSelect" onchange="onTenureSelectChange()">
+            <option value="36">36 Months (3 Years)</option>
+            <option value="30">30 Months (2.5 Years)</option>
+            <option value="24">24 Months (2 Years)</option>
+            <option value="18">18 Months (1.5 Years)</option>
+            <option value="12">12 Months (1 Year)</option>
+            <option value="6">6 Months (0.5 Year)</option>
+            <option value="custom">Type manually</option>
+          </select>
+          <div id="customMonthsWrapper" style="display:none;margin-top:6px;">
+            <input type="number" id="customMonths" min="1" placeholder="Enter months (e.g. 15)" style="background:#f8fafc;" />
+          </div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="form-group">
+          <label>Monthly Rate (%)</label>
+          <select id="rateSelect" onchange="onRateSelectChange()">
+            <option value="0.75">0.75% per month</option>
+            <option value="0.80">0.80% per month</option>
+            <option value="0.85">0.85% per month</option>
+            <option value="0.90">0.90% per month</option>
+            <option value="0.95">0.95% per month</option>
+            <option value="1.00">1.00% per month</option>
+            <option value="custom">Type manually</option>
+          </select>
+          <div id="customRateWrapper" style="display:none;margin-top:6px;">
+            <input type="number" step="0.01" id="customRate" min="0.01" placeholder="Enter rate (e.g. 1.25)" style="background:#f8fafc;" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Penalty Rate (%)</label>
+          <select id="penaltyRateSelect" onchange="onPenaltyRateSelectChange()">
+            <option value="3.0">3%</option>
+            <option value="custom">Type manually</option>
+          </select>
+          <div id="customPenaltyWrapper" style="display:none;margin-top:6px;">
+            <input type="number" step="0.01" id="customPenalty" min="0" placeholder="Enter penalty rate (e.g. 3.0)" style="background:#f8fafc;" />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Date of Loan</label>
+        <input type="date" id="startDate" required />
+        <p style="font-size:11.5px; color:#64748b; margin-top:4px;">Date where the borrower loans. Amortization payments start the next month.</p>
+      </div>
+
+      <button type="submit" id="submitBtn" class="btn">Generate Amortization Schedule</button>
+      <div id="status"></div>
+    </form>
+
+    <script>
+      let loanTypesData = [];
+
+      document.getElementById('startDate').value = new Date().toISOString().split('T')[0];
+
+      function onTenureSelectChange() {
+        const sel = document.getElementById('tenureSelect').value;
+        const wrapper = document.getElementById('customMonthsWrapper');
+        const input = document.getElementById('customMonths');
+        if (sel === 'custom') {
+          wrapper.style.display = 'block';
+          input.focus();
+        } else {
+          wrapper.style.display = 'none';
+        }
+      }
+
+      function onRateSelectChange() {
+        const sel = document.getElementById('rateSelect').value;
+        const wrapper = document.getElementById('customRateWrapper');
+        const input = document.getElementById('customRate');
+        if (sel === 'custom') {
+          wrapper.style.display = 'block';
+          input.focus();
+        } else {
+          wrapper.style.display = 'none';
+        }
+      }
+
+      function onPenaltyRateSelectChange() {
+        const sel = document.getElementById('penaltyRateSelect').value;
+        const wrapper = document.getElementById('customPenaltyWrapper');
+        const input = document.getElementById('customPenalty');
+        if (sel === 'custom') {
+          wrapper.style.display = 'block';
+          input.focus();
+        } else {
+          wrapper.style.display = 'none';
+        }
+      }
+
+      function getSelectedMonths() {
+        const sel = document.getElementById('tenureSelect').value;
+        if (sel === 'custom') {
+          const val = parseInt(document.getElementById('customMonths').value);
+          return isNaN(val) ? null : val;
+        }
+        return parseInt(sel);
+      }
+
+      function getSelectedRate() {
+        const sel = document.getElementById('rateSelect').value;
+        if (sel === 'custom') {
+          const val = parseFloat(document.getElementById('customRate').value);
+          return isNaN(val) ? null : val;
+        }
+        return parseFloat(sel);
+      }
+
+      function getSelectedPenaltyRate() {
+        const sel = document.getElementById('penaltyRateSelect').value;
+        if (sel === 'custom') {
+          const val = parseFloat(document.getElementById('customPenalty').value);
+          return isNaN(val) ? null : val;
+        }
+        return parseFloat(sel);
+      }
+
+      function onLoanTypeChange() {
+        // Do not force or hardcode tenure or rate when loan category changes
+      }
+
+      // Load Borrowers Dynamically
+      google.script.run
+        .withSuccessHandler(function(borrowers) {
+          const select = document.getElementById('borrowerSelect');
+          select.innerHTML = '';
+          if (!borrowers || borrowers.length === 0) {
+            select.innerHTML = '<option value="">-- No borrowers found (Please register borrower first) --</option>';
+          } else {
+            select.innerHTML = '<option value="">-- Select a Borrower --</option>';
+            borrowers.forEach(b => {
+              select.innerHTML += `<option value="${b.id}|${b.name}">${b.name} (${b.id})</option>`;
+            });
+          }
+
+          // Auto-select preselected borrower if passed
+          const targetId = window.preselectedId || window.preselectedLoanId;
+          if (targetId && borrowers && borrowers.length > 0) {
+            const match = borrowers.find(b => b.id === targetId || b.borrowerId === targetId);
+            if (match) {
+              select.value = `${match.id}|${match.name}`;
+            }
+          }
+        })
+        .withFailureHandler(function(err) {
+          const select = document.getElementById('borrowerSelect');
+          select.innerHTML = '<option value="">Error loading borrowers</option>';
+        })
+        .getBorrowersList();
+
+      // Load Loan Categories Dynamically from LoanTypes Sheet
+      google.script.run
+        .withSuccessHandler(function(types) {
+          loanTypesData = types || [];
+          const select = document.getElementById('loanType');
+          select.innerHTML = '';
+          if (!types || types.length === 0) {
+            const defaults = ['Regular Loan', 'Business Loan', 'Emergency Loan', 'Educational Loan', 'Mid/Year End Loan', 'Capital Build Up Loan', 'Grocery Loan'];
+            defaults.forEach(d => {
+              select.innerHTML += `<option value="${d}">${d}</option>`;
+            });
+          } else {
+            types.forEach(t => {
+              select.innerHTML += `<option value="${t.name}">${t.name}</option>`;
+            });
+          }
+        })
+        .withFailureHandler(function(err) {
+          const select = document.getElementById('loanType');
+          select.innerHTML = '<option value="Regular Loan">Regular Loan</option>';
+        })
+        .getLoanTypesList();
+
+      function submitForm(e) {
+        e.preventDefault();
+        const bSelect = document.getElementById('borrowerSelect');
+        if (!bSelect.value) {
+          document.getElementById('status').innerHTML = '<span style="color:#dc2626;">Please select a borrower first.</span>';
+          return;
+        }
+
+        const loanTypeSelect = document.getElementById('loanType');
+        if (!loanTypeSelect.value) {
+          document.getElementById('status').innerHTML = '<span style="color:#dc2626;">Please select a loan category.</span>';
+          return;
+        }
+
+        const rawAmount = document.getElementById('amount').value.replace(/,/g, '').trim();
+        const amount = parseFloat(rawAmount);
+        if (isNaN(amount) || amount <= 0) {
+          document.getElementById('status').innerHTML = '<span style="color:#dc2626;">Please enter a valid loan amount.</span>';
+          document.getElementById('amount').focus();
+          return;
+        }
+
+        const effectiveMonths = getSelectedMonths();
+        if (!effectiveMonths || effectiveMonths <= 0) {
+          document.getElementById('status').innerHTML = '<span style="color:#dc2626;">Please specify a valid tenure in months.</span>';
+          if (document.getElementById('tenureSelect').value === 'custom') {
+            document.getElementById('customMonths').focus();
+          }
+          return;
+        }
+
+        const effectiveRate = getSelectedRate();
+        if (effectiveRate === null || effectiveRate <= 0) {
+          document.getElementById('status').innerHTML = '<span style="color:#dc2626;">Please specify a valid monthly rate percentage.</span>';
+          if (document.getElementById('rateSelect').value === 'custom') {
+            document.getElementById('customRate').focus();
+          }
+          return;
+        }
+
+        const effectivePenalty = getSelectedPenaltyRate();
+        if (effectivePenalty === null || effectivePenalty < 0) {
+          document.getElementById('status').innerHTML = '<span style="color:#dc2626;">Please specify a valid penalty rate percentage.</span>';
+          if (document.getElementById('penaltyRateSelect').value === 'custom') {
+            document.getElementById('customPenalty').focus();
+          }
+          return;
+        }
+
+        const submitBtn = document.getElementById('submitBtn');
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.style.opacity = '0.6';
+          submitBtn.style.cursor = 'not-allowed';
+          submitBtn.innerText = 'Generating Schedule...';
+        }
+
+        document.getElementById('status').innerHTML = '<span style="color:#0f766e;">Generating amortization schedule...</span>';
+        
+        const bVal = bSelect.value.split('|');
+        const formData = {
+          borrowerId: bVal[0],
+          borrowerName: bVal[1],
+          loanType: loanTypeSelect.value,
+          amount: amount,
+          months: effectiveMonths,
+          rate: effectiveRate,
+          penaltyRate: effectivePenalty,
+          startDate: document.getElementById('startDate').value
+        };
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            if (submitBtn) {
+              submitBtn.innerText = 'Loan Created!';
+            }
+            const emailMsg = (res && res.emailSent && res.email)
+              ? ' Disclosure notice & schedule PDF emailed to ' + res.email + '!'
+              : '';
+            document.getElementById('status').innerHTML = '<span style="color:#059669;">Loan ' + res.loanId + ' created successfully!' + emailMsg + '</span>';
+            setTimeout(() => {
+              if (window.parent && window.parent.closeModalDialog) {
+                window.parent.closeModalDialog();
+              } else if (google && google.script && google.script.host && google.script.host.close) {
+                google.script.host.close();
+              }
+            }, 2200);
+          })
+          .withFailureHandler(function(err) {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.style.opacity = '1';
+              submitBtn.style.cursor = 'pointer';
+              submitBtn.innerText = 'Generate Amortization Schedule';
+            }
+            document.getElementById('status').innerHTML = '<span style="color:#dc2626;">Error: ' + err.message + '</span>';
+          })
+          .processCreateLoan(formData);
+      }
+    </script>
+  </body>
+</html>

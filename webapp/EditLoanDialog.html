@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg-color: #ffffff;
+        --border-color: #cbd5e1;
+        --navy-primary: #0f2b5c;
+        --navy-hover: #1e3a8a;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        padding: 24px;
+      }
+      .header-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 18px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      .icon-box {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+      }
+      h3 { font-size: 17px; font-weight: 800; color: var(--navy-primary); letter-spacing: -0.01em; }
+      p.subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; font-weight: 500; }
+      .form-group { margin-bottom: 13px; }
+      label {
+        display: block;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #334155;
+        margin-bottom: 6px;
+      }
+      input, select {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1.5px solid var(--border-color);
+        background-color: #ffffff;
+        font-size: 13px;
+        color: var(--text-main);
+        outline: none;
+        transition: all 0.2s ease;
+      }
+      input:focus, select:focus {
+        border-color: var(--navy-primary);
+        box-shadow: 0 0 0 3px rgba(15, 43, 92, 0.1);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .badge-locked {
+        background: #fef3c7;
+        border: 1px solid #fde68a;
+        color: #92400e;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 11.5px;
+        margin-bottom: 14px;
+        line-height: 1.4;
+      }
+      .badge-unlocked {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        color: #166534;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 11.5px;
+        margin-bottom: 14px;
+        line-height: 1.4;
+      }
+      .btn {
+        width: 100%;
+        padding: 13px;
+        background-color: var(--navy-primary);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 6px -1px rgba(15, 43, 92, 0.2);
+      }
+      .btn:hover { background-color: var(--navy-hover); transform: translateY(-1px); }
+      #status { margin-top: 12px; font-size: 12.5px; font-weight: 600; text-align: center; }
+    </style>
+  </head>
+  <body>
+    <div class="header-card">
+      <div class="icon-box">
+        <svg class="icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--navy-primary)" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </div>
+      <div>
+        <h3>Edit Loan Record</h3>
+        <p class="subtitle">Modify terms or recalculate amortization schedule</p>
+      </div>
+    </div>
+
+    <form id="editLoanForm" onsubmit="saveLoanEdit(event)">
+      <div class="form-group">
+        <label>Select Target Loan</label>
+        <select id="loanSelect" onchange="onLoanSelectChange()" required>
+          <option value="">-- Loading Active Loans... --</option>
+        </select>
+      </div>
+
+      <div id="editFields" style="display:none;">
+        <div id="lockNotice"></div>
+
+        <div class="form-group">
+          <label>Loan Product Category</label>
+          <select id="loanType">
+            <option value="Regular Loan">Regular Loan</option>
+            <option value="Business Loan">Business Loan</option>
+            <option value="Emergency Loan">Emergency Loan</option>
+            <option value="Educational Loan">Educational Loan</option>
+            <option value="Mid/Year End Loan">Mid/Year End Loan</option>
+            <option value="Capital Build Up Loan">Capital Build Up Loan</option>
+            <option value="Grocery Loan">Grocery Loan</option>
+          </select>
+        </div>
+
+        <div class="grid">
+          <div class="form-group">
+            <label>Loan Amount (₱)</label>
+            <input type="text" inputmode="decimal" id="loanAmount" placeholder="Enter amount (e.g. 50,000)" required />
+          </div>
+          <div class="form-group">
+            <label>Tenure (Months)</label>
+            <select id="loanMonths">
+              <option value="36">36 Months</option>
+              <option value="30">30 Months</option>
+              <option value="24">24 Months</option>
+              <option value="18">18 Months</option>
+              <option value="12">12 Months</option>
+              <option value="6">6 Months</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="form-group">
+            <label>Monthly Rate (%)</label>
+            <input type="number" step="0.01" id="loanRate" required />
+          </div>
+          <div class="form-group">
+            <label>Penalty Rate (%)</label>
+            <input type="number" step="0.01" id="penaltyRate" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Date Granted</label>
+          <input type="date" id="startDate" required />
+        </div>
+
+        <button type="submit" class="btn" id="saveBtn">Save & Apply Changes</button>
+      </div>
+      <div id="status"></div>
+    </form>
+
+    <script>
+      let activeLoans = [];
+
+      google.script.run
+        .withSuccessHandler(function(loans) {
+          activeLoans = loans || [];
+          const sel = document.getElementById('loanSelect');
+          sel.innerHTML = '';
+          if (activeLoans.length === 0) {
+            sel.innerHTML = '<option value="">-- No active loans found --</option>';
+            return;
+          }
+          sel.innerHTML = '<option value="">-- Choose Loan to Edit --</option>';
+          activeLoans.forEach(l => {
+            sel.innerHTML += `<option value="${l.loanId}">${l.loanId} - ${l.borrowerName} (₱${Number(l.remainingBalance || 0).toLocaleString()})</option>`;
+          });
+
+          // Auto-select preselected loan if passed
+          const targetLoanId = window.preselectedLoanId || window.preselectedId;
+          if (targetLoanId && activeLoans.some(l => l.loanId === targetLoanId)) {
+            sel.value = targetLoanId;
+            onLoanSelectChange();
+          }
+        })
+        .withFailureHandler(function(err) {
+          document.getElementById('status').innerHTML = '<span style="color:#dc2626;">Error loading loans: ' + err.message + '</span>';
+        })
+        .getActiveLoansList();
+
+      function onLoanSelectChange() {
+        const id = document.getElementById('loanSelect').value;
+        const fields = document.getElementById('editFields');
+        if (!id) {
+          fields.style.display = 'none';
+          return;
+        }
+
+        document.getElementById('status').innerHTML = '<span style="color:#64748b;">Fetching loan terms...</span>';
+        google.script.run
+          .withSuccessHandler(function(loan) {
+            document.getElementById('status').innerHTML = '';
+            if (!loan) return;
+
+            document.getElementById('loanType').value = loan.loanType || 'Regular Loan';
+            document.getElementById('loanAmount').value = Number(loan.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById('loanMonths').value = loan.months || 36;
+            document.getElementById('loanRate').value = loan.rate || 0.75;
+            document.getElementById('penaltyRate').value = loan.penaltyRate || 3.0;
+            document.getElementById('startDate').value = loan.startDate || '';
+
+            const notice = document.getElementById('lockNotice');
+            const amtInput = document.getElementById('loanAmount');
+            const mosInput = document.getElementById('loanMonths');
+            const rtInput = document.getElementById('loanRate');
+            const dateInput = document.getElementById('startDate');
+
+            if (loan.hasPayments) {
+              notice.className = 'badge-locked';
+              notice.innerHTML = `<strong>Payments Recorded (${loan.paidInstallmentCount} payments, total ₱${loan.totalPaidAmount.toLocaleString()}):</strong> Core financial terms (Principal, Months, Rate, Date) are locked to preserve payment integrity. You may update Loan Category and Agreed Penalty Rate.`;
+              amtInput.disabled = true;
+              mosInput.disabled = true;
+              rtInput.disabled = true;
+              dateInput.disabled = true;
+            } else {
+              notice.className = 'badge-unlocked';
+              notice.innerHTML = `<strong>Zero Payments Recorded:</strong> Full recalculation permitted. Modifying principal amount, tenure, interest rate, or date will safely regenerate the entire Amortization schedule.`;
+              amtInput.disabled = false;
+              mosInput.disabled = false;
+              rtInput.disabled = false;
+              dateInput.disabled = false;
+            }
+
+            fields.style.display = 'block';
+          })
+          .withFailureHandler(function(err) {
+            document.getElementById('status').innerHTML = '<span style="color:#dc2626;">Error: ' + err.message + '</span>';
+          })
+          .getLoanDetailsForEdit(id);
+      }
+
+      function saveLoanEdit(e) {
+        e.preventDefault();
+        const id = document.getElementById('loanSelect').value;
+        if (!id) return;
+
+        const rawAmount = document.getElementById('loanAmount').value.replace(/,/g, '').trim();
+        const parsedAmount = parseFloat(rawAmount);
+        if (isNaN(parsedAmount) || parsedAmount <= 0) {
+          document.getElementById('status').innerHTML = '<span style="color:#dc2626;">Please enter a valid loan amount.</span>';
+          document.getElementById('loanAmount').focus();
+          return;
+        }
+
+        const btn = document.getElementById('saveBtn');
+        btn.disabled = true;
+        btn.innerText = 'Saving Changes...';
+        document.getElementById('status').innerHTML = '<span style="color:#0f2b5c;">Updating loan and schedule...</span>';
+
+        const payload = {
+          loanId: id,
+          loanType: document.getElementById('loanType').value,
+          amount: parsedAmount,
+          months: document.getElementById('loanMonths').value,
+          rate: document.getElementById('loanRate').value,
+          penaltyRate: document.getElementById('penaltyRate').value,
+          startDate: document.getElementById('startDate').value
+        };
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            document.getElementById('status').innerHTML = '<span style="color:#059669;">' + res.message + '</span>';
+            setTimeout(() => google.script.host.close(), 2000);
+          })
+          .withFailureHandler(function(err) {
+            btn.disabled = false;
+            btn.innerText = 'Save & Apply Changes';
+            document.getElementById('status').innerHTML = '<span style="color:#dc2626;">Error: ' + err.message + '</span>';
+          })
+          .processUpdateLoan(payload);
+      }
+    </script>
+  </body>
+</html>

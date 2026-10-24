@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg-color: #ffffff;
+        --border-color: #cbd5e1;
+        --teal-primary: #0f766e;
+        --teal-hover: #115e59;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        padding: 24px;
+      }
+      .header-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 18px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      .icon-box {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+      }
+      h3 { font-size: 17px; font-weight: 800; color: #0f766e; letter-spacing: -0.01em; }
+      p.subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; font-weight: 500; }
+      .form-group { margin-bottom: 14px; }
+      label {
+        display: block;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #334155;
+        margin-bottom: 6px;
+      }
+      select, input[type="text"] {
+        width: 100%;
+        padding: 11px 13px;
+        border-radius: 11px;
+        border: 1.5px solid #cbd5e1;
+        background-color: #ffffff;
+        color: var(--text-main);
+        font-size: 13.5px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+      }
+      select:focus, input:focus {
+        outline: none;
+        border-color: #0f766e;
+        box-shadow: 0 0 0 3.5px rgba(15, 118, 110, 0.15);
+      }
+      .loan-preview {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 11px;
+        padding: 12px 14px;
+        margin-bottom: 14px;
+        font-size: 12px;
+        display: none;
+      }
+      .preview-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 3px 0;
+      }
+      .preview-row .lbl { color: var(--text-muted); font-weight: 600; }
+      .preview-row .val { font-weight: 700; color: var(--text-main); }
+      .options-box {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 11px;
+        padding: 10px 14px;
+        margin-bottom: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #1e293b;
+        cursor: pointer;
+      }
+      .checkbox-label input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: #0f766e;
+        cursor: pointer;
+      }
+      .btn {
+        width: 100%;
+        padding: 13px;
+        border: none;
+        border-radius: 12px;
+        background-color: #0f766e;
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 14px;
+        cursor: pointer;
+        margin-top: 4px;
+        box-shadow: 0 4px 14px rgba(15, 118, 110, 0.25);
+        transition: all 0.2s ease;
+      }
+      .btn:hover {
+        background-color: #115e59;
+        box-shadow: 0 6px 18px rgba(15, 118, 110, 0.35);
+      }
+      .btn:disabled {
+        background-color: #94a3b8;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+      #status {
+        margin-top: 14px;
+        font-size: 12.5px;
+        font-weight: 700;
+        text-align: center;
+        min-height: 22px;
+      }
+      .email-group {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+      .email-input {
+        width: 100%;
+        margin-top: 5px;
+        padding: 8px 12px;
+        border-radius: 9px;
+        border: 1.5px solid #cbd5e1;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-main);
+        transition: all 0.2s ease;
+      }
+      .email-input:focus {
+        outline: none;
+        border-color: #0f766e;
+        box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+      }
+      .email-input:disabled {
+        background-color: #f1f5f9;
+        color: #94a3b8;
+        border-color: #e2e8f0;
+        cursor: not-allowed;
+      }
+      .sub-hint {
+        font-size: 10.5px;
+        color: var(--text-muted);
+        margin-top: 3px;
+        font-weight: 500;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header-card">
+      <div class="icon-box">
+        <svg class="icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#0f766e" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      </div>
+      <div>
+        <h3>Export Amortization PDF</h3>
+        <p class="subtitle">Saint Joseph Multipurpose Cooperative</p>
+      </div>
+    </div>
+
+    <form id="exportForm" onsubmit="submitExport(event)">
+      <div class="form-group">
+        <label>Select Loan Account</label>
+        <select id="loanSelect" onchange="onSelectLoan()" required>
+          <option value="">Loading loans from sheet...</option>
+        </select>
+      </div>
+
+      <div id="loanPreview" class="loan-preview">
+        <div class="preview-row">
+          <span class="lbl">Borrower:</span>
+          <span class="val" id="prevBorrower">-</span>
+        </div>
+        <div class="preview-row">
+          <span class="lbl">Loan Product:</span>
+          <span class="val" id="prevType">-</span>
+        </div>
+        <div class="preview-row">
+          <span class="lbl">Amount Granted:</span>
+          <span class="val" id="prevAmount" style="color:#0f766e;">-</span>
+        </div>
+        <div class="preview-row">
+          <span class="lbl">Tenure & Rate:</span>
+          <span class="val" id="prevTenure">-</span>
+        </div>
+        <div class="preview-row">
+          <span class="lbl">Remaining Balance:</span>
+          <span class="val" id="prevBalance" style="color:#0f2b5c;">-</span>
+        </div>
+        <div class="preview-row">
+          <span class="lbl">Borrower Email:</span>
+          <span class="val" id="prevEmail" style="font-family:monospace;">-</span>
+        </div>
+      </div>
+
+      <div class="options-box">
+        <div class="checkbox-label" style="padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;">
+          <input type="checkbox" id="autoDownloadPdf" checked />
+          <span style="font-weight: 700; color: #0f766e;">Download PDF directly to computer (Automatic)</span>
+        </div>
+
+        <div class="email-group" style="margin-top: 8px;">
+          <label class="checkbox-label" id="borrowerEmailWrapper">
+            <input type="checkbox" id="emailBorrower" onchange="onToggleBorrowerEmail()" />
+            <span>Send PDF copy to Borrower Email</span>
+          </label>
+          <input type="text" id="borrowerEmailInput" class="email-input" placeholder="Borrower's email address" disabled />
+        </div>
+
+        <div class="email-group" style="margin-top: 8px; padding-top: 10px; border-top: 1px dashed #e2e8f0;">
+          <label class="checkbox-label">
+            <input type="checkbox" id="emailCustom" onchange="onToggleCustomEmail()" />
+            <span>Send PDF copy to Staff / Custom Email</span>
+          </label>
+          <input type="text" id="customEmailInput" class="email-input" placeholder="Enter recipient email(s)" disabled />
+          <p class="sub-hint">Enter any email address, or separate multiple emails with commas</p>
+        </div>
+      </div>
+
+      <button type="submit" id="submitBtn" class="btn">Export Amortization PDF</button>
+      <div id="status"></div>
+    </form>
+
+    <script>
+      let allLoans = [];
+
+      google.script.run
+        .withSuccessHandler(function(res) {
+          allLoans = Array.isArray(res) ? res : (res && res.loans ? res.loans : []);
+          const currentUser = (res && res.currentUserEmail) ? res.currentUserEmail : '';
+          const customInput = document.getElementById('customEmailInput');
+          if (currentUser && !customInput.value) {
+            customInput.value = currentUser;
+          }
+
+          const select = document.getElementById('loanSelect');
+          select.innerHTML = '';
+          if (allLoans.length === 0) {
+            select.innerHTML = '<option value="">-- No loans found in sheet --</option>';
+            document.getElementById('submitBtn').disabled = true;
+          } else {
+            select.innerHTML = '<option value="">-- Select a Loan Account --</option>';
+            allLoans.forEach(l => {
+              const numBal = (typeof l.remainingBalance === 'number') ? l.remainingBalance : (parseFloat(l.remainingBalance) || 0);
+              select.innerHTML += `<option value="${l.loanId}">${l.loanId} - ${l.borrowerName} (PHP ${numBal.toLocaleString()} - ${l.status})</option>`;
+            });
+          }
+
+          // Auto-select preselected loan if passed
+          const targetLoanId = window.preselectedLoanId || window.preselectedId;
+          if (targetLoanId && allLoans.some(l => l.loanId === targetLoanId)) {
+            select.value = targetLoanId;
+            onSelectLoan();
+          }
+        })
+        .withFailureHandler(function(err) {
+          const select = document.getElementById('loanSelect');
+          select.innerHTML = '<option value="">Error loading loans (' + err.message + ')</option>';
+        })
+        .getAllLoansForPdfExport();
+
+      function onToggleBorrowerEmail() {
+        const cb = document.getElementById('emailBorrower');
+        const input = document.getElementById('borrowerEmailInput');
+        input.disabled = !cb.checked;
+        if (cb.checked) input.focus();
+      }
+
+      function onToggleCustomEmail() {
+        const cb = document.getElementById('emailCustom');
+        const input = document.getElementById('customEmailInput');
+        input.disabled = !cb.checked;
+        if (cb.checked) input.focus();
+      }
+
+      function onSelectLoan() {
+        const selId = document.getElementById('loanSelect').value;
+        const loan = allLoans.find(l => l.loanId === selId);
+        const preview = document.getElementById('loanPreview');
+        const emailBox = document.getElementById('emailBorrower');
+        const bEmailInput = document.getElementById('borrowerEmailInput');
+
+        if (!loan) {
+          preview.style.display = 'none';
+          bEmailInput.value = '';
+          return;
+        }
+
+        preview.style.display = 'block';
+        document.getElementById('prevBorrower').textContent = loan.borrowerName;
+        document.getElementById('prevType').textContent = loan.loanType;
+        document.getElementById('prevAmount').textContent = 'PHP ' + Number(loan.amount || 0).toLocaleString();
+        document.getElementById('prevTenure').textContent = loan.months + ' Mos @ ' + loan.rate + '%/mo';
+        document.getElementById('prevBalance').textContent = 'PHP ' + Number(loan.remainingBalance || 0).toLocaleString();
+        
+        if (loan.borrowerEmail && loan.borrowerEmail.includes('@')) {
+          document.getElementById('prevEmail').textContent = loan.borrowerEmail;
+          bEmailInput.value = loan.borrowerEmail;
+          emailBox.checked = true;
+          bEmailInput.disabled = false;
+        } else {
+          document.getElementById('prevEmail').textContent = 'None registered';
+          bEmailInput.value = '';
+          bEmailInput.placeholder = 'Type borrower email here (optional)';
+          emailBox.checked = false;
+          bEmailInput.disabled = true;
+        }
+      }
+
+      function openPdfPreview(base64Data) {
+        try {
+          const byteCharacters = atob(base64Data);
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          const blob = new Blob([byteArray], { type: 'application/pdf' });
+          const fileUrl = URL.createObjectURL(blob);
+          window.open(fileUrl);
+        } catch (e) {
+          alert('Could not preview PDF: ' + e.message);
+        }
+      }
+
+      function submitExport(e) {
+        e.preventDefault();
+        const loanId = document.getElementById('loanSelect').value;
+        if (!loanId) {
+          document.getElementById('status').innerHTML = '<span style="color:#dc2626;">Please select a loan first.</span>';
+          return;
+        }
+
+        const autoDownload = document.getElementById('autoDownloadPdf').checked;
+        const emailBorrower = document.getElementById('emailBorrower').checked;
+        const borrowerEmail = document.getElementById('borrowerEmailInput').value.trim();
+        const emailCustom = document.getElementById('emailCustom').checked;
+        const customEmail = document.getElementById('customEmailInput').value.trim();
+
+        if (emailBorrower && (!borrowerEmail || !borrowerEmail.includes('@'))) {
+          document.getElementById('status').innerHTML = '<span style="color:#dc2626;">Please enter a valid email for the borrower.</span>';
+          return;
+        }
+
+        if (emailCustom && (!customEmail || !customEmail.includes('@'))) {
+          document.getElementById('status').innerHTML = '<span style="color:#dc2626;">Please enter at least one valid custom/staff email address.</span>';
+          return;
+        }
+
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        document.getElementById('status').innerHTML = '<span style="color:#0f766e;">Generating Amortization PDF...</span>';
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            btn.disabled = false;
+            if (res && res.success) {
+              const fileName = res.fileName || ('Amortization_Schedule_' + loanId + '.pdf');
+
+              // Auto-download to client computer if requested
+              if (autoDownload && res.pdfBase64) {
+                const dlLink = document.createElement('a');
+                dlLink.href = 'data:application/pdf;base64,' + res.pdfBase64;
+                dlLink.download = fileName;
+                document.body.appendChild(dlLink);
+                dlLink.click();
+                document.body.removeChild(dlLink);
+              }
+
+              let msg = '<div style="margin-top:10px; padding:12px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; text-align:left;">';
+              msg += '<div style="color:#166534; font-weight:800; font-size:13px;">Amortization PDF Generated Successfully!</div>';
+              msg += '<div style="font-size:11.5px; color:#334155; margin-top:3px;">File: <strong>' + fileName + '</strong></div>';
+              
+              if (res.emailedBorrower) {
+                msg += '<div style="font-size:11.5px; color:#0f766e; margin-top:2px;">• Dispatched to Borrower: ' + res.emailedBorrower + '</div>';
+              }
+              if (res.emailedCustom) {
+                msg += '<div style="font-size:11.5px; color:#0f766e; margin-top:2px;">• Dispatched to Staff: ' + res.emailedCustom + '</div>';
+              }
+              if (res.emailErrors && res.emailErrors.length > 0) {
+                msg += '<div style="font-size:11px; color:#b91c1c; margin-top:4px;">Notice: ' + res.emailErrors.join('; ') + '</div>';
+              }
+
+              if (res.pdfBase64) {
+                msg += '<div style="display:flex; gap:8px; margin-top:10px;">';
+                msg += '<a href="data:application/pdf;base64,' + res.pdfBase64 + '" download="' + fileName + '" style="flex:1; text-align:center; padding:8px 12px; background:#0f766e; color:#ffffff; font-size:11.5px; font-weight:700; border-radius:8px; text-decoration:none;">Download File</a>';
+                msg += '<button type="button" onclick="openPdfPreview(\'' + res.pdfBase64 + '\')" style="flex:1; text-align:center; padding:8px 12px; background:#0f2b5c; color:#ffffff; font-size:11.5px; font-weight:700; border-radius:8px; border:none; cursor:pointer;">View / Print</button>';
+                msg += '</div>';
+              }
+              msg += '</div>';
+
+              document.getElementById('status').innerHTML = msg;
+            } else {
+              document.getElementById('status').innerHTML = '<span style="color:#dc2626;">Failed: ' + (res.error || 'Unknown error') + '</span>';
+            }
+          })
+          .withFailureHandler(function(err) {
+            btn.disabled = false;
+            document.getElementById('status').innerHTML = '<span style="color:#dc2626;">Error: ' + err.message + '</span>';
+          })
+          .processExportAmortizationPdf({
+            loanId: loanId,
+            emailBorrower: emailBorrower,
+            borrowerEmail: borrowerEmail,
+            emailCustom: emailCustom,
+            customEmail: customEmail
+          });
+      }
+    </script>
+  </body>
+</html>

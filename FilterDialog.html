@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --primary: #0f766e;
+        --primary-hover: #115e59;
+        --border-color: #cbd5e1;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+      body {
+        background-color: #ffffff;
+        color: var(--text-main);
+        padding: 24px;
+      }
+      .header-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 18px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      .icon-box {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+      }
+      h3 { font-size: 17px; font-weight: 800; color: #0f766e; letter-spacing: -0.01em; }
+      p.subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; font-weight: 500; }
+      
+      .toggle-group {
+        display: flex;
+        background: #f1f5f9;
+        padding: 4px;
+        border-radius: 12px;
+        margin-bottom: 18px;
+        gap: 4px;
+      }
+      .toggle-btn {
+        flex: 1;
+        padding: 9px 12px;
+        border: none;
+        border-radius: 9px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        background: transparent;
+        color: #64748b;
+        transition: all 0.2s;
+        text-align: center;
+      }
+      .toggle-btn.active {
+        background: #ffffff;
+        color: #0f766e;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      }
+
+      .form-group { margin-bottom: 16px; }
+      label {
+        display: block;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: #334155;
+        letter-spacing: 0.05em;
+        margin-bottom: 6px;
+      }
+      select {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1.5px solid var(--border-color);
+        box-sizing: border-box;
+        font-size: 13.5px;
+        background-color: #f8fafc;
+        outline: none;
+        transition: all 0.2s;
+        font-weight: 600;
+      }
+      select:focus {
+        border-color: #0f766e;
+        background-color: #ffffff;
+        box-shadow: 0 0 0 3.5px rgba(15, 118, 110, 0.15);
+      }
+
+      .info-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 12px 14px;
+        margin-bottom: 18px;
+        font-size: 12px;
+        color: #475569;
+        line-height: 1.45;
+      }
+      .info-card strong { color: #0f172a; }
+      .badge-list {
+        display: flex;
+        gap: 6px;
+        margin-top: 6px;
+      }
+      .badge {
+        font-size: 10.5px;
+        font-weight: 700;
+        background: #e2e8f0;
+        color: #334155;
+        padding: 2px 8px;
+        border-radius: 6px;
+      }
+
+      .btn-primary {
+        width: 100%;
+        padding: 13px;
+        border: none;
+        border-radius: 12px;
+        background-color: var(--primary);
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 13.5px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s;
+        box-shadow: 0 4px 14px rgba(15, 118, 110, 0.25);
+        margin-bottom: 10px;
+      }
+      .btn-primary:hover:not(:disabled) {
+        background-color: var(--primary-hover);
+        box-shadow: 0 6px 18px rgba(15, 118, 110, 0.35);
+        transform: translateY(-1px);
+      }
+      .btn-primary:disabled {
+        background-color: #cbd5e1;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+
+      .btn-reset {
+        width: 100%;
+        padding: 11px;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 12px;
+        background-color: #ffffff;
+        color: #475569;
+        font-weight: 700;
+        font-size: 12.5px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s;
+      }
+      .btn-reset:hover {
+        background-color: #f8fafc;
+        border-color: #94a3b8;
+        color: #0f172a;
+      }
+
+      #status {
+        margin-top: 14px;
+        font-size: 13px;
+        font-weight: 700;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header-card">
+      <div class="icon-box">
+        <svg class="icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#0f2b5c" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+      </div>
+      <div>
+        <h3>Filter Database Records</h3>
+        <p class="subtitle">Isolate rows for a specific Loan or Borrower</p>
+      </div>
+    </div>
+
+    <!-- Toggle between Loan and Borrower -->
+    <div class="toggle-group">
+      <button type="button" id="tabLoan" class="toggle-btn active" onclick="setFilterMode('loan')">
+        By Loan ID
+      </button>
+      <button type="button" id="tabBorrower" class="toggle-btn" onclick="setFilterMode('borrower')">
+        By Borrower
+      </button>
+    </div>
+
+    <form id="filterForm" onsubmit="submitFilter(event)">
+      <!-- Loan Selection -->
+      <div id="loanGroup" class="form-group">
+        <label>Select Target Loan</label>
+        <select id="loanSelect" onchange="validateSelection()">
+          <option value="">Loading loans...</option>
+        </select>
+      </div>
+
+      <!-- Borrower Selection -->
+      <div id="borrowerGroup" class="form-group" style="display: none;">
+        <label>Select Target Borrower</label>
+        <select id="borrowerSelect" onchange="validateSelection()">
+          <option value="">Loading borrowers...</option>
+        </select>
+      </div>
+
+      <div class="info-card">
+        <p><strong>Affected Sheets:</strong> This filter will be applied to:</p>
+        <div class="badge-list">
+          <span class="badge">Loans</span>
+          <span class="badge">Amortization</span>
+          <span class="badge">Payments</span>
+        </div>
+        <p style="margin-top: 6px; font-size: 11px; color: #64748b;">
+          Uses Google Sheets native filters. No data is deleted or permanently hidden.
+        </p>
+      </div>
+
+      <button type="submit" id="applyButton" class="btn-primary" disabled>
+        <span>Apply Sheet Filter</span>
+      </button>
+
+      <button type="button" onclick="submitReset()" class="btn-reset">
+        <span>Show All Records (Reset Filter)</span>
+      </button>
+
+      <div id="status"></div>
+    </form>
+
+    <script>
+      let currentMode = 'loan';
+      let optionsData = { loans: [], borrowers: [] };
+
+      function setFilterMode(mode) {
+        currentMode = mode;
+        const tabLoan = document.getElementById('tabLoan');
+        const tabBorrower = document.getElementById('tabBorrower');
+        const loanGroup = document.getElementById('loanGroup');
+        const borrowerGroup = document.getElementById('borrowerGroup');
+
+        if (mode === 'loan') {
+          tabLoan.classList.add('active');
+          tabBorrower.classList.remove('active');
+          loanGroup.style.display = 'block';
+          borrowerGroup.style.display = 'none';
+        } else {
+          tabBorrower.classList.add('active');
+          tabLoan.classList.remove('active');
+          loanGroup.style.display = 'none';
+          borrowerGroup.style.display = 'block';
+        }
+        validateSelection();
+      }
+
+      function validateSelection() {
+        const selVal = currentMode === 'loan' 
+          ? document.getElementById('loanSelect').value 
+          : document.getElementById('borrowerSelect').value;
+        document.getElementById('applyButton').disabled = !selVal;
+      }
+
+      // Load filter options
+      google.script.run
+        .withSuccessHandler(function(data) {
+          optionsData = data || { loans: [], borrowers: [] };
+
+          // Populate Loans
+          const loanSelect = document.getElementById('loanSelect');
+          loanSelect.innerHTML = '<option value="">-- Choose Loan ID --</option>';
+          if (optionsData.loans && optionsData.loans.length > 0) {
+            optionsData.loans.forEach(l => {
+              loanSelect.innerHTML += `<option value="${l.loanId}">${l.loanId} - ${l.borrowerName} (${l.status})</option>`;
+            });
+          }
+
+          // Populate Borrowers
+          const borrowerSelect = document.getElementById('borrowerSelect');
+          borrowerSelect.innerHTML = '<option value="">-- Choose Borrower --</option>';
+          if (optionsData.borrowers && optionsData.borrowers.length > 0) {
+            optionsData.borrowers.forEach(b => {
+              borrowerSelect.innerHTML += `<option value="${b.borrowerName}">${b.borrowerName} (${b.borrowerId})</option>`;
+            });
+          }
+
+          validateSelection();
+
+          // Auto-select preselected ID if passed
+          const targetId = window.preselectedId || window.preselectedLoanId;
+          if (targetId) {
+            if (optionsData.loans.some(l => l.id === targetId)) {
+              setFilterMode('loan');
+              document.getElementById('loanSelect').value = targetId;
+              validateSelection();
+            } else if (optionsData.borrowers.some(b => b.borrowerId === targetId || b.borrowerName === targetId)) {
+              setFilterMode('borrower');
+              const bMatch = optionsData.borrowers.find(b => b.borrowerId === targetId || b.borrowerName === targetId);
+              if (bMatch) document.getElementById('borrowerSelect').value = bMatch.borrowerName;
+              validateSelection();
+            }
+          }
+        })
+        .withFailureHandler(function(err) {
+          console.error("Failed to load filter options:", err);
+          document.getElementById('status').innerHTML = '<span style="color:#dc2626;">Error loading options: ' + (err.message || err) + '</span>';
+        })
+        .getFilterOptions();
+
+      function submitFilter(e) {
+        e.preventDefault();
+        const value = currentMode === 'loan' 
+          ? document.getElementById('loanSelect').value 
+          : document.getElementById('borrowerSelect').value;
+        if (!value) return;
+
+        const btn = document.getElementById('applyButton');
+        btn.disabled = true;
+        btn.innerHTML = '<span>Applying filter...</span>';
+        document.getElementById('status').innerHTML = '<span style="color:#0f766e;">Filtering sheets for ' + value + '...</span>';
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            document.getElementById('status').innerHTML = '<span style="color:#059669;">Filter active for "' + res.filterValue + '"!</span>';
+            setTimeout(() => {
+              google.script.host.close();
+            }, 1600);
+          })
+          .withFailureHandler(function(err) {
+            document.getElementById('status').innerHTML = '<span style="color:#dc2626;">Error: ' + err.message + '</span>';
+            btn.disabled = false;
+            btn.innerHTML = '<span>Apply Sheet Filter</span>';
+          })
+          .applySheetFilter(currentMode, value);
+      }
+
+      function submitReset() {
+        document.getElementById('status').innerHTML = '<span style="color:#64748b;">Resetting all filters...</span>';
+        google.script.run
+          .withSuccessHandler(function() {
+            document.getElementById('status').innerHTML = '<span style="color:#059669;">All filters reset! Full tables visible.</span>';
+            setTimeout(() => {
+              google.script.host.close();
+            }, 1400);
+          })
+          .withFailureHandler(function(err) {
+            document.getElementById('status').innerHTML = '<span style="color:#dc2626;">Error: ' + err.message + '</span>';
+          })
+          .clearAllSheetFilters();
+      }
+    </script>
+  </body>
+</html>

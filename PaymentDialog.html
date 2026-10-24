@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg-color: #ffffff;
+        --border-color: #e2e8f0;
+        --teal-primary: #0f766e;
+        --teal-hover: #115e59;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        padding: 20px 22px;
+      }
+      .header-card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      .icon-box {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      h3 { font-size: 16px; font-weight: 800; color: #0f766e; letter-spacing: -0.01em; }
+      p.subtitle { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; font-weight: 500; }
+      
+      .form-group { margin-bottom: 12px; }
+      label.field-label {
+        display: block;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #334155;
+        margin-bottom: 5px;
+      }
+      input, select {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 9px;
+        border: 1.5px solid #cbd5e1;
+        background-color: #ffffff;
+        color: var(--text-main);
+        font-size: 13.5px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+      }
+      input:focus, select:focus {
+        outline: none;
+        border-color: #0f766e;
+        box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+      }
+      .grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 12px; }
+
+      /* ==========================================================================
+         Unified Billing & Assessment Card
+         ========================================================================== */
+      .billing-card {
+        background: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 11px;
+        overflow: hidden;
+        margin-bottom: 14px;
+        transition: all 0.2s ease;
+      }
+      .billing-card.has-overdue {
+        border-color: #fde68a;
+        background: #fffdf5;
+      }
+      .billing-header {
+        padding: 10px 14px;
+        background: #ffffff;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .billing-card.has-overdue .billing-header {
+        border-bottom-color: #fef3c7;
+        background: #fffbeb;
+      }
+      .status-pill {
+        font-size: 10.5px;
+        font-weight: 800;
+        letter-spacing: 0.03em;
+        padding: 3px 8px;
+        border-radius: 6px;
+        text-transform: uppercase;
+      }
+      .status-pill.ontime {
+        background: #dcfce7;
+        color: #15803d;
+      }
+      .status-pill.grace {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+      .status-pill.overdue {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+      .status-pill.underpaid {
+        background: #ffedd5;
+        color: #c2410c;
+      }
+
+      .billing-meta-text {
+        font-size: 11.5px;
+        color: #64748b;
+        font-weight: 500;
+      }
+
+      .billing-body {
+        padding: 12px 14px;
+      }
+      .bill-line {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12.5px;
+        color: #475569;
+        margin-bottom: 7px;
+      }
+      .bill-line strong {
+        color: #0f172a;
+        font-weight: 700;
+      }
+      
+      .penalty-subrow {
+        background: #ffffff;
+        border: 1px dashed #fde68a;
+        border-radius: 8px;
+        padding: 8px 10px;
+        margin: 6px 0 10px 0;
+      }
+      .penalty-subrow-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+      }
+      .penalty-inline-input {
+        width: 100px;
+        padding: 4px 8px;
+        font-size: 12px;
+        font-weight: 700;
+        border-radius: 6px;
+        border: 1px solid #f59e0b;
+        text-align: right;
+      }
+      .capitalization-policy {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 6px;
+        padding-top: 6px;
+        border-top: 1px solid #fef3c7;
+        font-size: 11px;
+        color: #92400e;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .capitalization-policy input[type="checkbox"] {
+        width: 15px;
+        height: 15px;
+        accent-color: #d97706;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+
+      .bill-total-row {
+        margin-top: 8px;
+        padding-top: 10px;
+        border-top: 1.5px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .billing-card.has-overdue .bill-total-row {
+        border-top-color: #fde68a;
+      }
+      .bill-total-label {
+        font-size: 11.5px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #1e293b;
+      }
+      .bill-total-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .bill-total-val {
+        font-size: 18px;
+        font-weight: 800;
+        color: #0f2b5c;
+      }
+      .btn-auto-fill {
+        background: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        color: #334155;
+        font-size: 10.5px;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .btn-auto-fill:hover {
+        background: #e2e8f0;
+        color: #0f172a;
+      }
+
+      /* ==========================================================================
+         Live Waterfall Settlement Breakdown Card
+         ========================================================================== */
+      .waterfall-card {
+        background: #ffffff;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 11px;
+        overflow: hidden;
+        margin-bottom: 14px;
+      }
+      .waterfall-header {
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 8px 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .waterfall-title {
+        font-size: 11px;
+        font-weight: 800;
+        color: #475569;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      .alloc-badge {
+        font-size: 9.5px;
+        font-weight: 800;
+        padding: 2px 7px;
+        border-radius: 5px;
+        background: #f1f5f9;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .waterfall-body {
+        padding: 10px 14px;
+        font-size: 12.5px;
+      }
+      .waterfall-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+        color: #475569;
+      }
+      .waterfall-total {
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1.5px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 800;
+        font-size: 13.5px;
+        color: #0f766e;
+      }
+
+      .overpay-box {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        padding: 8px 10px;
+        border-radius: 8px;
+        margin: 8px 0;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 10px;
+        background-color: #0f766e;
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 13.5px;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(15, 118, 110, 0.22);
+        transition: all 0.2s ease;
+      }
+      .btn:hover {
+        background-color: #115e59;
+        box-shadow: 0 6px 16px rgba(15, 118, 110, 0.3);
+      }
+
+      .email-footer-hint {
+        margin-top: 9px;
+        font-size: 11px;
+        color: var(--text-muted);
+        text-align: center;
+        font-weight: 500;
+      }
+      .email-footer-hint strong {
+        color: #0f766e;
+      }
+
+      /* Hide spin buttons */
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      input[type="number"] { -moz-appearance: textfield; }
+
+      #status {
+        margin-top: 10px;
+        font-size: 12.5px;
+        font-weight: 700;
+        text-align: center;
+        min-height: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header-card">
+      <div class="icon-box">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#0f766e" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      </div>
+      <div>
+        <h3>Record Payment & Issue Receipt</h3>
+        <p class="subtitle">Auto-Waterfall Payment Allocation (Penalty → Interest → Principal)</p>
+      </div>
+    </div>
+
+    <form id="paymentForm" onsubmit="submitPayment(event)">
+      <!-- 1. Select Target Loan -->
+      <div class="form-group">
+        <label class="field-label">Select Target Loan</label>
+        <select id="loanSelect" required onchange="onLoanChange()">
+          <option value="">Loading active loans...</option>
+        </select>
+      </div>
+
+      <!-- 2. Unified Billing & Due Summary Card (Replaces the 3 disjointed cards) -->
+      <div id="unifiedBillingCard" class="billing-card" style="display:none;">
+        <div class="billing-header">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span id="loanStatusPill" class="status-pill ontime">ON TIME</span>
+            <span id="billingDueDate" class="billing-meta-text">Due: -</span>
+          </div>
+          <span id="billingLoanInfo" class="billing-meta-text">Month #1</span>
+        </div>
+
+        <div class="billing-body">
+          <div class="bill-line">
+            <span>Scheduled Monthly Amortization:</span>
+            <strong id="billingMonthlyVal">₱0.00</strong>
+          </div>
+
+          <!-- Penalty Line & Inline Control -->
+          <div id="billingPenaltyContainer" style="display:none;">
+            <div class="penalty-subrow">
+              <div class="penalty-subrow-top">
+                <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:12px; font-weight:700; color:#92400e;">
+                  <input type="checkbox" id="applyPenaltyCheckbox" onchange="onTogglePenalty()" style="width:16px; height:16px; accent-color:#d97706; cursor:pointer;" />
+                  <span id="penaltyRateLabel">Late Penalty Fee</span>
+                </label>
+                <div id="penaltyInputWrapper" style="display:flex; align-items:center; gap:6px;">
+                  <span style="font-size:11px; color:#b45309; font-weight:600;">₱</span>
+                  <input type="text" inputmode="decimal" id="penaltyAmount" class="penalty-inline-input" value="0.00" oninput="onPenaltyInputChange()" />
+                </div>
+              </div>
+              
+              <!-- Day 31+ Capitalization Policy Checkbox -->
+              <div id="capitalizePenaltyWrapper" style="display:none;">
+                <label class="capitalization-policy">
+                  <input type="checkbox" id="capitalizePenaltyCheckbox" checked />
+                  <span>Add unpaid penalty to next month's payment (Day 31+ Policy)</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Total Due Line with optional Quick Pay button -->
+          <div class="bill-total-row">
+            <div>
+              <div class="bill-total-label">Total Amount Due:</div>
+              <div id="billingExplanation" style="font-size:11px; color:#64748b; margin-top:2px;">Scheduled monthly installment</div>
+            </div>
+            <div class="bill-total-right">
+              <span id="billingTotalDueVal" class="bill-total-val">₱0.00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Payment Entry Form (Manual Entry for Real Cashiers) -->
+      <div class="grid">
+        <div class="form-group">
+          <label class="field-label">Amount Paid by Borrower (₱)</label>
+          <input type="text" inputmode="decimal" id="amountPaid" placeholder="Enter amount handed (e.g. 5000)" oninput="calculateBreakdown()" required />
+        </div>
+        <div class="form-group">
+          <label class="field-label">Payment Method</label>
+          <select id="method" onchange="onMethodChange()">
+            <option value="Cash">Cash</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+            <option value="GCash">GCash</option>
+            <option value="Maya">Maya</option>
+            <option value="Check">Check</option>
+            <option value="Others">Others</option>
+          </select>
+          <div id="customMethodWrapper" style="display:none; margin-top:6px;">
+            <input type="text" id="customMethod" placeholder="Specify (e.g. Palawan)" style="padding:7px 10px; font-size:12px;" />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="field-label">Payment Date</label>
+        <input type="date" id="paymentDate" required />
+      </div>
+
+      <!-- 4. Waterfall Payment Allocation Breakdown -->
+      <div class="waterfall-card">
+        <div class="waterfall-header">
+          <span class="waterfall-title">Allocation Breakdown</span>
+          <span id="allocationStatusBadge" class="alloc-badge">AWAITING AMOUNT</span>
+        </div>
+        <div class="waterfall-body">
+          <div class="waterfall-row">
+            <span>Late Penalty Settled:</span>
+            <strong id="penaltyBreakdown" style="color:#d97706;">₱0.00</strong>
+          </div>
+          <div class="waterfall-row">
+            <span>Interest Portion:</span>
+            <strong id="intBreakdown" style="color:#0f766e;">₱0.00</strong>
+          </div>
+          <div class="waterfall-row">
+            <span id="prinLabel">Principal Reduction:</span>
+            <strong id="prinBreakdown" style="color:#059669;">₱0.00</strong>
+          </div>
+          <div id="adjustmentRow" class="waterfall-row" style="display:none;">
+            <span id="adjustmentLabel">Advance Payment (Excess):</span>
+            <strong id="adjustmentVal" style="color:#2563eb;">₱0.00</strong>
+          </div>
+
+          <!-- Overpayment Alert Box -->
+          <div id="overpayWarningRow" class="overpay-box" style="display:none;">
+            <span style="color:#b91c1c; font-size:11.5px; font-weight:800;">Overpayment Notice:</span>
+            <span id="overpayWarningText" style="color:#991b1b; font-size:11px; margin-top:2px;">-</span>
+          </div>
+
+          <div class="waterfall-total">
+            <span>Total Handed / Paid:</span>
+            <strong id="totalPaidBreakdown">₱0.00</strong>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" id="submitBtn" class="btn">Issue Official Receipt & Update Ledger</button>
+      
+      <!-- Clean integrated email notice -->
+      <div id="emailNotice" class="email-footer-hint" style="display:none;"></div>
+      
+      <div id="status"></div>
+    </form>
+
+    <script>
+      let activeLoans = [];
+      document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
+
+      function roundUp2(val) {
+        if (val === undefined || val === null || val === '') return 0;
+        const num = (typeof val === 'number') ? val : (parseFloat(String(val).replace(/[^0-9.-]/g, '')) || 0);
+        if (isNaN(num)) return 0;
+        return Math.ceil(Math.round((num + Number.EPSILON) * 1000000) / 10000) / 100;
+      }
+
+      function formatClean(val) {
+        if (val === undefined || val === null || val === '') return '';
+        const num = roundUp2(val);
+        if (isNaN(num)) return '';
+        return num.toFixed(2);
+      }
+
+      function formatMoney(val) {
+        const num = roundUp2(val);
+        return '₱' + num.toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      }
+
+      function calculateBreakdown() {
+        const selId = document.getElementById('loanSelect').value;
+        const currentLoan = activeLoans.find(l => l.loanId === selId);
+        const badge = document.getElementById('allocationStatusBadge');
+
+        if (!currentLoan) {
+          document.getElementById('penaltyBreakdown').innerText = '₱0.00';
+          document.getElementById('intBreakdown').innerText = '₱0.00';
+          document.getElementById('prinLabel').innerText = 'Principal Reduction:';
+          document.getElementById('prinBreakdown').innerText = '₱0.00';
+          document.getElementById('adjustmentRow').style.display = 'none';
+          document.getElementById('totalPaidBreakdown').innerText = '₱0.00';
+          if (badge) {
+            badge.innerText = 'AWAITING SELECTION';
+            badge.style.background = '#f1f5f9';
+            badge.style.color = '#64748b';
+          }
+          return;
+        }
+
+        const rawAmt = document.getElementById('amountPaid').value.replace(/[^0-9.-]/g, '').trim();
+        const amt = roundUp2(parseFloat(rawAmt) || 0);
+        const currentBal = roundUp2(parseFloat(currentLoan.remainingBalance) || 0);
+
+        const applyPenalty = document.getElementById('applyPenaltyCheckbox').checked;
+        const rawPenalty = document.getElementById('penaltyAmount').value.replace(/[^0-9.-]/g, '').trim();
+        const inputPenalty = applyPenalty ? roundUp2(parseFloat(rawPenalty) || 0) : 0;
+
+        // Update Total Amount to be Paid
+        const monthlyAmort = roundUp2(parseFloat(currentLoan.monthlyAmortization) || 0);
+        const totalDue = roundUp2(monthlyAmort + inputPenalty);
+        const totalDueElem = document.getElementById('billingTotalDueVal');
+        if (totalDueElem) totalDueElem.innerText = formatMoney(totalDue);
+
+        // Waterfall allocation: Penalty first -> Multi-Month / Advance Installments
+        const penaltyPaid = roundUp2(Math.min(amt, inputPenalty));
+        let remFunds = Math.max(0, roundUp2(amt - penaltyPaid));
+
+        let totalInterest = 0;
+        let totalPrincipal = 0;
+        const settledList = [];
+        let advanceInfo = null;
+
+        const installments = (currentLoan.pendingInstallments && currentLoan.pendingInstallments.length > 0)
+          ? currentLoan.pendingInstallments
+          : [{
+              monthIndex: currentLoan.monthIndex || 1,
+              monthName: currentLoan.monthName || '',
+              interestPayment: roundUp2(parseFloat(currentLoan.expectedInterest) || 0),
+              monthlyAmortization: roundUp2(parseFloat(currentLoan.monthlyAmortization) || 0),
+              principalPayment: roundUp2(parseFloat(currentLoan.expectedPrincipal) || 0)
+            }];
+
+        for (let p = 0; p < installments.length; p++) {
+          if (remFunds <= 0) break;
+          const inst = installments[p];
+          const schedMonthly = roundUp2(inst.monthlyAmortization > 0 ? inst.monthlyAmortization : (inst.principalPayment + inst.interestPayment));
+          const iPay = roundUp2(inst.interestPayment);
+          const pPay = Math.max(0, roundUp2(schedMonthly - iPay));
+
+          if (remFunds >= schedMonthly) {
+            settledList.push('Month #' + inst.monthIndex);
+            totalInterest = roundUp2(totalInterest + iPay);
+            totalPrincipal = roundUp2(totalPrincipal + pPay);
+            remFunds = Math.max(0, roundUp2(remFunds - schedMonthly));
+          } else {
+            if (p === 0 && settledList.length === 0) {
+              // Partial underpayment on current month
+              const iPortion = roundUp2(Math.min(remFunds, iPay));
+              const pPortion = Math.max(0, roundUp2(remFunds - iPortion));
+              totalInterest = roundUp2(totalInterest + iPortion);
+              totalPrincipal = roundUp2(totalPrincipal + pPortion);
+              remFunds = 0;
+            } else {
+              // Advance applied to this next pending month
+              const adv = remFunds;
+              const lessenedMonthly = Math.max(0, roundUp2(schedMonthly - adv));
+              totalPrincipal = roundUp2(totalPrincipal + adv);
+              advanceInfo = {
+                monthIndex: inst.monthIndex,
+                advanceAmount: adv,
+                lessenedMonthly: lessenedMonthly,
+                originalMonthly: schedMonthly
+              };
+              remFunds = 0;
+            }
+            break;
+          }
+        }
+
+        if (remFunds > 0) {
+          totalPrincipal = roundUp2(totalPrincipal + remFunds);
+          remFunds = 0;
+        }
+
+        const estBal = Math.max(0, roundUp2(currentBal - totalPrincipal));
+
+        // Scheduled interest and principal for the current month
+        const currentSchedInt = roundUp2((installments.length > 0) ? installments[0].interestPayment : (parseFloat(currentLoan.expectedInterest) || 0));
+        const currentSchedPrin = roundUp2((installments.length > 0) ? installments[0].principalPayment : (parseFloat(currentLoan.expectedPrincipal) || 0));
+        const currentSchedMonthly = roundUp2((installments.length > 0) ? (installments[0].monthlyAmortization || (currentSchedPrin + currentSchedInt)) : (parseFloat(currentLoan.monthlyAmortization) || 0));
+
+        const adjRow = document.getElementById('adjustmentRow');
+        const adjLabel = document.getElementById('adjustmentLabel');
+        const adjVal = document.getElementById('adjustmentVal');
+        const prinLabel = document.getElementById('prinLabel');
+
+        document.getElementById('penaltyBreakdown').innerText = formatMoney(penaltyPaid);
+
+        if (amt <= 0) {
+          document.getElementById('intBreakdown').innerText = '₱0.00';
+          prinLabel.innerText = 'Principal Reduction:';
+          document.getElementById('prinBreakdown').innerText = '₱0.00';
+          adjRow.style.display = 'none';
+        } else if (amt > totalDue) {
+          // Excess payment beyond this month's total due
+          const excess = roundUp2(amt - totalDue);
+          document.getElementById('intBreakdown').innerText = formatMoney(currentSchedInt);
+          prinLabel.innerText = 'Monthly Principal:';
+          document.getElementById('prinBreakdown').innerText = formatMoney(currentSchedPrin);
+          adjRow.style.display = 'flex';
+          adjLabel.innerText = 'Advance Payment (Excess):';
+          adjLabel.style.color = '#1d4ed8';
+          adjVal.innerText = '+' + formatMoney(excess);
+          adjVal.style.color = '#1d4ed8';
+        } else if (amt < totalDue) {
+          // Client paid less than total amount to be paid
+          const underpaid = roundUp2(totalDue - amt);
+          const actualIntPaid = roundUp2(Math.min(amt - penaltyPaid, currentSchedInt));
+          document.getElementById('intBreakdown').innerText = formatMoney(actualIntPaid);
+          prinLabel.innerText = 'Monthly Principal:';
+          document.getElementById('prinBreakdown').innerText = formatMoney(currentSchedPrin);
+          adjRow.style.display = 'flex';
+          adjLabel.innerText = 'Underpaid Amount:';
+          adjLabel.style.color = '#b45309';
+          adjVal.innerText = '-' + formatMoney(underpaid);
+          adjVal.style.color = '#b45309';
+        } else {
+          // Exact match to total due
+          document.getElementById('intBreakdown').innerText = formatMoney(currentSchedInt);
+          prinLabel.innerText = 'Monthly Principal:';
+          document.getElementById('prinBreakdown').innerText = formatMoney(currentSchedPrin);
+          adjRow.style.display = 'none';
+        }
+
+        document.getElementById('totalPaidBreakdown').innerText = formatMoney(amt);
+
+        // Update summary status badge
+        if (badge) {
+          const advanceMonthsSettled = Math.max(0, settledList.length - 1);
+          if (amt <= 0) {
+            badge.innerText = 'ENTER AMOUNT';
+            badge.style.background = '#f1f5f9';
+            badge.style.color = '#64748b';
+          } else if (estBal === 0 && currentBal > 0) {
+            badge.innerText = 'FULL LOAN PAYOFF';
+            badge.style.background = '#dcfce7';
+            badge.style.color = '#15803d';
+          } else if (advanceMonthsSettled > 0 && advanceInfo) {
+            const monthWord = advanceMonthsSettled === 1 ? '1 MONTH' : `${advanceMonthsSettled} MONTHS`;
+            badge.innerText = `+${monthWord} ADVANCE + PARTIAL`;
+            badge.style.background = '#dbeafe';
+            badge.style.color = '#1d4ed8';
+          } else if (advanceMonthsSettled > 0) {
+            const monthWord = advanceMonthsSettled === 1 ? '1 MONTH' : `${advanceMonthsSettled} MONTHS`;
+            badge.innerText = `+${monthWord} ADVANCE`;
+            badge.style.background = '#dbeafe';
+            badge.style.color = '#1d4ed8';
+          } else if (advanceInfo) {
+            badge.innerText = 'PARTIAL ADVANCE';
+            badge.style.background = '#e0f2fe';
+            badge.style.color = '#0284c7';
+          } else if (settledList.length === 1) {
+            badge.innerText = 'MONTHLY SETTLED';
+            badge.style.background = '#f0fdf4';
+            badge.style.color = '#166534';
+          } else {
+            badge.innerText = 'PARTIAL PAYMENT';
+            badge.style.background = '#fef3c7';
+            badge.style.color = '#b45309';
+          }
+        }
+
+        // Edge Case #2: Overpayment detection warning
+        const overpayRow = document.getElementById('overpayWarningRow');
+        const overpayText = document.getElementById('overpayWarningText');
+        const maxExpectedPayoff = roundUp2(currentBal + totalInterest + penaltyPaid);
+        if (amt > maxExpectedPayoff && currentBal > 0) {
+          const excess = roundUp2(amt - maxExpectedPayoff);
+          overpayRow.style.display = 'flex';
+          overpayText.innerHTML = `Entered amount exceeds total loan payoff by <strong>${formatMoney(excess)}</strong>. The loan will be marked Fully Paid, and <strong>${formatMoney(excess)}</strong> should be refunded to the borrower.`;
+        } else {
+          overpayRow.style.display = 'none';
+        }
+      }
+
+      function applyTotalDueToInput() {
+        const selId = document.getElementById('loanSelect').value;
+        const currentLoan = activeLoans.find(l => l.loanId === selId);
+        if (!currentLoan) return;
+
+        const applyPenalty = document.getElementById('applyPenaltyCheckbox').checked;
+        const rawPenalty = document.getElementById('penaltyAmount').value.replace(/[^0-9.-]/g, '').trim();
+        const inputPenalty = applyPenalty ? roundUp2(parseFloat(rawPenalty) || 0) : 0;
+        const monthlyAmort = roundUp2(parseFloat(currentLoan.monthlyAmortization) || 0);
+        const totalDue = roundUp2(monthlyAmort + inputPenalty);
+
+        document.getElementById('amountPaid').value = formatClean(totalDue);
+        calculateBreakdown();
+      }
+
+      function onPenaltyInputChange() {
+        calculateBreakdown();
+      }
+
+      function onLoanChange() {
+        const selId = document.getElementById('loanSelect').value;
+        const currentLoan = activeLoans.find(l => l.loanId === selId);
+        const billingCard = document.getElementById('unifiedBillingCard');
+        const statusPill = document.getElementById('loanStatusPill');
+        const dueDateElem = document.getElementById('billingDueDate');
+        const loanInfoElem = document.getElementById('billingLoanInfo');
+        const monthlyValElem = document.getElementById('billingMonthlyVal');
+        const penaltyContainer = document.getElementById('billingPenaltyContainer');
+        const explanationElem = document.getElementById('billingExplanation');
+        const emailNotice = document.getElementById('emailNotice');
+
+        if (!currentLoan) {
+          billingCard.style.display = 'none';
+          emailNotice.style.display = 'none';
+          document.getElementById('amountPaid').value = '';
+          document.getElementById('applyPenaltyCheckbox').checked = false;
+          penaltyContainer.style.display = 'none';
+          const capBox = document.getElementById('capitalizePenaltyCheckbox');
+          if (capBox) capBox.checked = false;
+          document.getElementById('penaltyAmount').value = '0.00';
+          calculateBreakdown();
+          return;
+        }
+
+        // Show automated email recipient status
+        if (currentLoan.email && currentLoan.email.trim() !== '') {
+          emailNotice.style.display = 'block';
+          emailNotice.innerHTML = `Payment receipt & statement will be automatically emailed to: <strong>${currentLoan.email}</strong>`;
+        } else {
+          emailNotice.style.display = 'block';
+          emailNotice.innerHTML = `No email registered for borrower. Receipt will be recorded to Payments sheet.`;
+        }
+
+        const monthlyAmort = parseFloat(currentLoan.monthlyAmortization) || 0;
+        const rate = currentLoan.penaltyRate !== undefined ? currentLoan.penaltyRate : 3.0;
+        const defaultPenalty = parseFloat(currentLoan.defaultPenalty) || 0;
+
+        billingCard.style.display = 'block';
+        monthlyValElem.innerText = formatMoney(monthlyAmort);
+        dueDateElem.innerText = `Due: ${currentLoan.dueDate || 'N/A'}`;
+        loanInfoElem.innerText = `Installment #${currentLoan.monthIndex || 1}`;
+
+        const checkbox = document.getElementById('applyPenaltyCheckbox');
+        const penaltyInput = document.getElementById('penaltyAmount');
+        const capitalizeWrapper = document.getElementById('capitalizePenaltyWrapper');
+        const capitalizeCheckbox = document.getElementById('capitalizePenaltyCheckbox');
+        const penaltyLabel = document.getElementById('penaltyRateLabel');
+
+        penaltyLabel.innerText = `Late Penalty Fee (${rate}% agreed)`;
+
+        if (currentLoan.isOverdue && currentLoan.isPastGracePeriod) {
+          billingCard.className = 'billing-card has-overdue';
+          statusPill.className = 'status-pill overdue';
+          statusPill.innerText = `OVERDUE (${currentLoan.daysOverdue}d Late)`;
+          
+          explanationElem.innerHTML = `Includes <strong>${rate}% penalty</strong> (₱${defaultPenalty.toFixed(2)}) for exceeding 30-day grace period.`;
+          penaltyContainer.style.display = 'block';
+          checkbox.checked = true;
+          capitalizeWrapper.style.display = 'block';
+          if (capitalizeCheckbox) capitalizeCheckbox.checked = true;
+          penaltyInput.value = formatClean(defaultPenalty) || '0.00';
+          document.getElementById('amountPaid').value = '';
+        } else if (currentLoan.isOverdue && currentLoan.isGracePeriod) {
+          billingCard.className = 'billing-card';
+          statusPill.className = 'status-pill grace';
+          statusPill.innerText = `GRACE PERIOD (${currentLoan.graceDaysLeft}d left)`;
+          
+          explanationElem.innerHTML = `Within 30-day grace period. No penalty fee applied.`;
+          penaltyContainer.style.display = 'none';
+          checkbox.checked = false;
+          capitalizeWrapper.style.display = 'none';
+          if (capitalizeCheckbox) capitalizeCheckbox.checked = false;
+          penaltyInput.value = '0.00';
+          document.getElementById('amountPaid').value = '';
+        } else if (currentLoan.isUnderpaid) {
+          billingCard.className = 'billing-card';
+          statusPill.className = 'status-pill underpaid';
+          statusPill.innerText = `UNDERPAID BALANCE`;
+          
+          explanationElem.innerHTML = `Remaining unpaid installment balance.`;
+          penaltyContainer.style.display = 'none';
+          checkbox.checked = false;
+          capitalizeWrapper.style.display = 'none';
+          if (capitalizeCheckbox) capitalizeCheckbox.checked = false;
+          penaltyInput.value = '0.00';
+          document.getElementById('amountPaid').value = '';
+        } else {
+          billingCard.className = 'billing-card';
+          statusPill.className = 'status-pill ontime';
+          statusPill.innerText = `ON TIME`;
+          
+          explanationElem.innerHTML = `Scheduled regular monthly installment.`;
+          penaltyContainer.style.display = 'none';
+          checkbox.checked = false;
+          capitalizeWrapper.style.display = 'none';
+          if (capitalizeCheckbox) capitalizeCheckbox.checked = false;
+          penaltyInput.value = '0.00';
+          document.getElementById('amountPaid').value = '';
+        }
+
+        calculateBreakdown();
+      }
+
+      function onTogglePenalty() {
+        const checkbox = document.getElementById('applyPenaltyCheckbox');
+        const penaltyInputWrapper = document.getElementById('penaltyInputWrapper');
+        const capitalizeWrapper = document.getElementById('capitalizePenaltyWrapper');
+        const capitalizeCheckbox = document.getElementById('capitalizePenaltyCheckbox');
+        const penaltyInput = document.getElementById('penaltyAmount');
+        const selId = document.getElementById('loanSelect').value;
+        const currentLoan = activeLoans.find(l => l.loanId === selId);
+
+        if (checkbox.checked) {
+          penaltyInputWrapper.style.opacity = '1';
+          penaltyInput.disabled = false;
+          if (currentLoan && currentLoan.isPastGracePeriod) {
+            capitalizeWrapper.style.display = 'block';
+            if (capitalizeCheckbox) capitalizeCheckbox.checked = true;
+          }
+          const pRate = (currentLoan && currentLoan.penaltyRate !== undefined) ? currentLoan.penaltyRate : 3.0;
+          const pBasis = (currentLoan && currentLoan.penaltyBasis > 0) ? currentLoan.penaltyBasis : (currentLoan ? (parseFloat(currentLoan.monthlyAmortization) || 0) : 0);
+          const suggested = (currentLoan && currentLoan.defaultPenalty > 0) ? currentLoan.defaultPenalty : roundUp2(pBasis * (pRate / 100));
+          const currentVal = parseFloat(penaltyInput.value.replace(/[^0-9.-]/g, ''));
+          penaltyInput.value = currentVal > 0 ? formatClean(currentVal) : (formatClean(suggested) || '0.00');
+        } else {
+          penaltyInputWrapper.style.opacity = '0.4';
+          penaltyInput.disabled = true;
+          capitalizeWrapper.style.display = 'none';
+          if (capitalizeCheckbox) capitalizeCheckbox.checked = false;
+          penaltyInput.value = '0.00';
+        }
+        calculateBreakdown();
+      }
+
+      function onMethodChange() {
+        const methodSelect = document.getElementById('method');
+        const customWrapper = document.getElementById('customMethodWrapper');
+        const customInput = document.getElementById('customMethod');
+        if (methodSelect.value === 'Others') {
+          customWrapper.style.display = 'block';
+          customInput.focus();
+        } else {
+          customWrapper.style.display = 'none';
+          customInput.value = '';
+        }
+      }
+
+      google.script.run
+        .withSuccessHandler(function(loans) {
+          activeLoans = loans || [];
+          const select = document.getElementById('loanSelect');
+          select.innerHTML = '';
+          if (!loans || loans.length === 0) {
+            select.innerHTML = '<option value="">-- No active loans found --</option>';
+          } else {
+            select.innerHTML = '<option value="">-- Select an Active Loan --</option>';
+            loans.forEach(l => {
+              const overdueTag = l.isPastGracePeriod ? ` [${l.daysOverdue}d Late]` : (l.isGracePeriod ? ` [Grace: ${l.graceDaysLeft}d]` : '');
+              const numBal = (typeof l.remainingBalance === 'number') ? l.remainingBalance : (parseFloat(l.remainingBalance) || 0);
+              select.innerHTML += `<option value="${l.loanId}">${l.loanId} - ${l.borrowerName} (Bal: ₱${numBal.toLocaleString()})${overdueTag}</option>`;
+            });
+          }
+
+          // Auto-select preselected loan if passed
+          const targetLoanId = window.preselectedLoanId || window.preselectedId;
+          if (targetLoanId && activeLoans.some(l => l.loanId === targetLoanId)) {
+            select.value = targetLoanId;
+            onLoanChange();
+          }
+        })
+        .withFailureHandler(function(err) {
+          console.error("Failed to load active loans:", err);
+          const select = document.getElementById('loanSelect');
+          const errMsg = err && err.message ? err.message : String(err);
+          select.innerHTML = '<option value="">Error loading loans (' + errMsg + ')</option>';
+        })
+        .getActiveLoansList();
+
+      function submitPayment(e) {
+        e.preventDefault();
+        const loanSelect = document.getElementById('loanSelect');
+        if (!loanSelect.value) {
+          document.getElementById('status').innerHTML = '<span style="color:#dc2626;">Please select an active loan first.</span>';
+          return;
+        }
+
+        const rawAmt = document.getElementById('amountPaid').value.replace(/[^0-9.-]/g, '').trim();
+        const amountPaid = roundUp2(parseFloat(rawAmt) || 0);
+        if (isNaN(amountPaid) || amountPaid <= 0) {
+          document.getElementById('status').innerHTML = '<span style="color:#dc2626;">Please enter a valid payment amount.</span>';
+          document.getElementById('amountPaid').focus();
+          return;
+        }
+
+        let finalMethod = document.getElementById('method').value;
+        if (finalMethod === 'Others') {
+          const customVal = document.getElementById('customMethod').value.trim();
+          if (!customVal) {
+            document.getElementById('status').innerHTML = '<span style="color:#dc2626;">Please specify the custom payment method.</span>';
+            document.getElementById('customMethod').focus();
+            return;
+          }
+          finalMethod = customVal;
+        }
+
+        const submitBtn = document.getElementById('submitBtn');
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.style.opacity = '0.6';
+          submitBtn.style.cursor = 'not-allowed';
+          submitBtn.innerText = 'Processing Payment...';
+        }
+
+        document.getElementById('status').innerHTML = '<span style="color:#0f766e;">Recording payment, generating Amortization PDF & sending receipt...</span>';
+
+        const applyPenalty = document.getElementById('applyPenaltyCheckbox').checked;
+        const rawPenalty = document.getElementById('penaltyAmount').value.replace(/[^0-9.-]/g, '').trim();
+        const penaltyPaid = applyPenalty ? (parseFloat(rawPenalty) || 0) : 0;
+
+        const currentLoan = activeLoans.find(l => l.loanId === loanSelect.value);
+        const suggestedPenalty = (currentLoan && currentLoan.defaultPenalty > 0) ? currentLoan.defaultPenalty : 0;
+        const capitalizeCheckbox = document.getElementById('capitalizePenaltyCheckbox');
+        const capitalizePenalty = Boolean(applyPenalty && capitalizeCheckbox && capitalizeCheckbox.checked);
+        const unpaidPenalty = (applyPenalty && currentLoan && currentLoan.isPastGracePeriod && penaltyPaid < suggestedPenalty)
+          ? roundUp2(suggestedPenalty - penaltyPaid)
+          : 0;
+
+        const formData = {
+          loanId: loanSelect.value,
+          amountPaid: amountPaid,
+          penaltyPaid: penaltyPaid,
+          unpaidPenalty: unpaidPenalty,
+          capitalizePenalty: capitalizePenalty,
+          paymentDate: document.getElementById('paymentDate').value,
+          method: finalMethod
+        };
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            if (submitBtn) {
+              submitBtn.innerText = 'Payment Recorded!';
+            }
+            const pdfTag = (res && res.pdfAttached) ? ' with Amortization Schedule PDF' : '';
+            const emailText = (res && res.emailSent && res.borrowerEmail) ? ` & emailed${pdfTag} to ${res.borrowerEmail}` : '';
+            let detailsTag = '';
+            if (res && res.settledMonths && res.settledMonths.length > 0) {
+              detailsTag += ' [' + res.settledMonths.join(' & ') + ' Settled]';
+            }
+            if (res && res.advanceCredited > 0) {
+              detailsTag += ' (₱' + res.advanceCredited.toLocaleString() + ' advance credited to ' + res.advanceMonthNum + ')';
+            }
+            if (res && res.penaltyCapitalized > 0) {
+              detailsTag += ' (+₱' + res.penaltyCapitalized.toLocaleString() + ' unpaid penalty added to ' + (res.penaltyTargetMonth ? ('Month #' + res.penaltyTargetMonth) : 'next installment') + ')';
+            }
+            document.getElementById('status').innerHTML = '<span style="color:#059669;">Receipt ' + res.receiptNo + ' issued' + emailText + '!' + detailsTag + ' New Bal: ₱' + res.balanceAfter.toLocaleString() + '</span>';
+            setTimeout(() => google.script.host.close(), 2600);
+          })
+          .withFailureHandler(function(err) {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.style.opacity = '1';
+              submitBtn.style.cursor = 'pointer';
+              submitBtn.innerText = 'Issue Receipt & Update Sheet';
+            }
+            document.getElementById('status').innerHTML = '<span style="color:#dc2626;">Error: ' + err.message + '</span>';
+          })
+          .processRecordPayment(formData);
+      }
+    </script>
+  </body>
+</html>

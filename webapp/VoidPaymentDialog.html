@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg-color: #ffffff;
+        --border-color: #cbd5e1;
+        --amber-primary: #d97706;
+        --amber-hover: #b45309;
+        --red-primary: #dc2626;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        padding: 24px;
+      }
+      .header-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 18px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      .icon-box {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: #fffbeb;
+        border: 1px solid #fef3c7;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+      }
+      h3 { font-size: 17px; font-weight: 800; color: #b45309; letter-spacing: -0.01em; }
+      p.subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; font-weight: 500; }
+      .form-group { margin-bottom: 14px; }
+      label {
+        display: block;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #334155;
+        margin-bottom: 6px;
+      }
+      input, select {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1.5px solid var(--border-color);
+        background-color: #ffffff;
+        font-size: 13px;
+        color: var(--text-main);
+        outline: none;
+        transition: all 0.2s ease;
+      }
+      input:focus, select:focus {
+        border-color: var(--amber-primary);
+        box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.12);
+      }
+      .receipt-preview {
+        background: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-bottom: 14px;
+        font-size: 12px;
+      }
+      .preview-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+        color: #475569;
+      }
+      .preview-row strong { color: #0f172a; }
+      .warning-box {
+        background: #fef2f2;
+        border: 1px solid #fee2e2;
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 11.5px;
+        color: #991b1b;
+        margin-bottom: 16px;
+        line-height: 1.4;
+      }
+      .btn {
+        width: 100%;
+        padding: 13px;
+        background-color: var(--amber-primary);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 6px -1px rgba(217, 119, 6, 0.2);
+      }
+      .btn:hover { background-color: var(--amber-hover); transform: translateY(-1px); }
+      #status { margin-top: 12px; font-size: 12.5px; font-weight: 600; text-align: center; }
+
+      /* In-App Confirmation Modal */
+      .confirm-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(15, 23, 42, 0.65);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        padding: 16px;
+        animation: fadeIn 0.15s ease-out;
+      }
+      .confirm-modal-card {
+        background: #ffffff;
+        border-radius: 16px;
+        max-width: 440px;
+        width: 100%;
+        padding: 24px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+        text-align: center;
+        animation: scaleUp 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .confirm-icon-box {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: #fee2e2;
+        border: 2px solid #fecaca;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 12px auto;
+      }
+      .confirm-title {
+        font-size: 17px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 6px;
+        letter-spacing: -0.01em;
+      }
+      .confirm-desc {
+        font-size: 12.5px;
+        color: #475569;
+        line-height: 1.5;
+        margin-bottom: 14px;
+      }
+      .confirm-summary-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-bottom: 12px;
+        font-size: 12px;
+        text-align: left;
+      }
+      .confirm-summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+        color: #64748b;
+      }
+      .confirm-summary-row:last-child { margin-bottom: 0; }
+      .confirm-summary-row strong { color: #0f172a; }
+      .confirm-warning {
+        font-size: 11px;
+        color: #b45309;
+        background: #fffbeb;
+        border: 1px solid #fef3c7;
+        border-radius: 8px;
+        padding: 9px 11px;
+        margin-bottom: 18px;
+        line-height: 1.45;
+        text-align: left;
+      }
+      .confirm-actions {
+        display: flex;
+        gap: 10px;
+      }
+      .btn-cancel {
+        flex: 1;
+        padding: 11px;
+        border-radius: 10px;
+        border: 1.5px solid #cbd5e1;
+        background: #ffffff;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .btn-cancel:hover {
+        background: #f1f5f9;
+        border-color: #94a3b8;
+      }
+      .btn-confirm-danger {
+        flex: 1.3;
+        padding: 11px;
+        border-radius: 10px;
+        border: none;
+        background: #dc2626;
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 800;
+        cursor: pointer;
+        box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.25);
+        transition: all 0.15s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+      .btn-confirm-danger:hover {
+        background: #b91c1c;
+        transform: translateY(-1px);
+      }
+      .inline-spinner {
+        width: 14px;
+        height: 14px;
+        border: 2px solid rgba(255, 255, 255, 0.35);
+        border-top-color: #ffffff;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+        display: inline-block;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      @keyframes scaleUp {
+        from { transform: scale(0.96); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header-card">
+      <div class="icon-box">
+        <svg class="icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#d97706" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+      </div>
+      <div>
+        <h3>Void/Reverse Error Payment</h3>
+        <p class="subtitle">Undo accidental payments & restore loan principal</p>
+      </div>
+    </div>
+
+    <form id="voidPaymentForm" onsubmit="onVoidFormSubmit(event)">
+      <div class="form-group">
+        <label>Select Official Receipt to Void</label>
+        <select id="receiptSelect" onchange="onReceiptSelectChange()" required>
+          <option value="">-- Loading Recent Receipts... --</option>
+        </select>
+      </div>
+
+      <div id="voidDetails" style="display:none;">
+        <div class="receipt-preview">
+          <div class="preview-row">
+            <span>Borrower Name:</span>
+            <strong id="prevBorrower">-</strong>
+          </div>
+          <div class="preview-row">
+            <span>Loan Account No:</span>
+            <strong id="prevLoanId">-</strong>
+          </div>
+          <div class="preview-row">
+            <span>Date Collected:</span>
+            <strong id="prevDate">-</strong>
+          </div>
+          <div class="preview-row">
+            <span>Total Collected:</span>
+            <strong id="prevAmount" style="color:#0f766e; font-size:13px;">₱0.00</strong>
+          </div>
+          <div class="preview-row" style="border-top:1px dashed #cbd5e1; padding-top:4px; margin-top:4px;">
+            <span>Principal Restored to Loan:</span>
+            <strong id="prevPrincipal" style="color:#dc2626; font-size:13px;">₱0.00</strong>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Reason for Voiding</label>
+          <select id="voidReason" required>
+            <option value="Cashier Mistake / Wrong Amount">Cashier Mistake / Wrong Amount</option>
+            <option value="Wrong Loan Account Selected">Wrong Loan Account Selected</option>
+            <option value="Payment Bounced / Cancelled Check">Payment Bounced / Cancelled Check</option>
+            <option value="Duplicate Payment Recorded">Duplicate Payment Recorded</option>
+            <option value="Borrower Refund Request">Borrower Refund Request</option>
+          </select>
+        </div>
+
+        <div class="warning-box">
+          <strong>Reversal Impact:</strong> Voiding marks this receipt as <code>VOIDED</code>, completely restores the loan balance & amortization ledger, and automatically dispatches an official payment reversal notice email with the updated schedule PDF attached.
+        </div>
+
+        <button type="submit" class="btn" id="voidBtn">Confirm & Void Payment</button>
+      </div>
+      <div id="status"></div>
+    </form>
+
+    <!-- Custom In-App Confirmation Modal -->
+    <div id="confirmModalOverlay" class="confirm-modal-overlay" style="display:none;">
+      <div class="confirm-modal-card">
+        <div class="confirm-icon-box">
+          <svg class="icon" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#dc2626" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <h4 class="confirm-title">Confirm Payment Reversal</h4>
+        <p class="confirm-desc">
+          Are you sure you want to void receipt <strong id="confirmReceiptNo" style="color:#b91c1c;">OR-XXXX</strong>?
+        </p>
+        <div class="confirm-summary-box">
+          <div class="confirm-summary-row">
+            <span>Borrower:</span>
+            <strong id="confirmBorrower">-</strong>
+          </div>
+          <div class="confirm-summary-row">
+            <span>Amount to Void:</span>
+            <strong id="confirmAmount" style="color:#b91c1c;">₱0.00</strong>
+          </div>
+          <div class="confirm-summary-row">
+            <span>Principal to Restore:</span>
+            <strong id="confirmPrincipal" style="color:#0f766e;">₱0.00</strong>
+          </div>
+        </div>
+        <p class="confirm-warning">
+          ⚠️ This will cancel the official receipt, restore the installment to <strong>Pending</strong>, recalculate the schedule, and email the reversal notice to the member.
+        </p>
+        <div class="confirm-actions">
+          <button type="button" class="btn-cancel" id="cancelConfirmBtn" onclick="closeConfirmModal()">Cancel</button>
+          <button type="button" class="btn-confirm-danger" id="executeVoidBtn" onclick="executeVoidPayment()">
+            <span id="executeVoidBtnText">Yes, Void Payment</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let paymentsList = [];
+      let isSubmitting = false;
+
+      google.script.run
+        .withSuccessHandler(function(list) {
+          paymentsList = list || [];
+          const sel = document.getElementById('receiptSelect');
+          sel.innerHTML = '';
+          if (paymentsList.length === 0) {
+            sel.innerHTML = '<option value="">-- No active receipts found to void --</option>';
+            return;
+          }
+          sel.innerHTML = '<option value="">-- Choose Receipt to Void --</option>';
+          paymentsList.forEach(p => {
+            sel.innerHTML += `<option value="${p.receiptNo}">${p.receiptNo} - ${p.borrowerName} (₱${Number(p.amountPaid || 0).toLocaleString()} on ${p.paymentDate})</option>`;
+          });
+
+          // Auto-select preselected receipt if passed
+          const targetReceipt = window.preselectedId || window.preselectedLoanId;
+          if (targetReceipt && paymentsList.some(p => p.receiptNo === targetReceipt)) {
+            sel.value = targetReceipt;
+            onReceiptSelectChange();
+          }
+        })
+        .withFailureHandler(function(err) {
+          document.getElementById('status').innerHTML = '<span style="color:#dc2626;">Error loading payments: ' + err.message + '</span>';
+        })
+        .getPaymentsForVoidList();
+
+      function onReceiptSelectChange() {
+        const rNo = document.getElementById('receiptSelect').value;
+        const p = paymentsList.find(item => item.receiptNo === rNo);
+        const details = document.getElementById('voidDetails');
+        if (!p) {
+          details.style.display = 'none';
+          return;
+        }
+
+        document.getElementById('prevBorrower').innerText = p.borrowerName;
+        document.getElementById('prevLoanId').innerText = p.loanId;
+        document.getElementById('prevDate').innerText = p.paymentDate;
+        document.getElementById('prevAmount').innerText = '₱' + Number(p.amountPaid || 0).toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('prevPrincipal').innerText = '+₱' + Number(p.principalPaid || 0).toLocaleString(undefined, {minimumFractionDigits: 2});
+
+        details.style.display = 'block';
+      }
+
+      function onVoidFormSubmit(e) {
+        e.preventDefault();
+        if (isSubmitting) return;
+
+        const rNo = document.getElementById('receiptSelect').value;
+        if (!rNo) return;
+
+        const p = paymentsList.find(item => item.receiptNo === rNo);
+        if (!p) return;
+
+        document.getElementById('confirmReceiptNo').innerText = p.receiptNo;
+        document.getElementById('confirmBorrower').innerText = p.borrowerName;
+        document.getElementById('confirmAmount').innerText = '₱' + Number(p.amountPaid || 0).toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('confirmPrincipal').innerText = '₱' + Number(p.principalPaid || 0).toLocaleString(undefined, {minimumFractionDigits: 2});
+
+        document.getElementById('confirmModalOverlay').style.display = 'flex';
+      }
+
+      function closeConfirmModal() {
+        if (isSubmitting) return;
+        document.getElementById('confirmModalOverlay').style.display = 'none';
+      }
+
+      function executeVoidPayment() {
+        if (isSubmitting) return;
+        isSubmitting = true;
+
+        const rNo = document.getElementById('receiptSelect').value;
+        const reason = document.getElementById('voidReason').value;
+        if (!rNo) {
+          isSubmitting = false;
+          return;
+        }
+
+        // Lock all UI controls immediately to prevent any duplicate clicks
+        const execBtn = document.getElementById('executeVoidBtn');
+        const cancelBtn = document.getElementById('cancelConfirmBtn');
+        const voidBtn = document.getElementById('voidBtn');
+        const receiptSel = document.getElementById('receiptSelect');
+        const reasonSel = document.getElementById('voidReason');
+
+        execBtn.disabled = true;
+        execBtn.style.pointerEvents = 'none';
+        execBtn.style.opacity = '0.75';
+        document.getElementById('executeVoidBtnText').innerHTML = '<span class="inline-spinner"></span> Reversing...';
+
+        cancelBtn.disabled = true;
+        cancelBtn.style.pointerEvents = 'none';
+        cancelBtn.style.opacity = '0.4';
+
+        voidBtn.disabled = true;
+        voidBtn.style.pointerEvents = 'none';
+        voidBtn.innerText = 'Voiding Payment in Progress...';
+
+        receiptSel.disabled = true;
+        reasonSel.disabled = true;
+
+        document.getElementById('status').innerHTML = '<span style="color:#b45309;">Reversing payment, restoring schedule, and dispatching notice email...</span>';
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            closeConfirmModal();
+            let msg = 'Receipt ' + res.receiptNo + ' successfully voided! Loan balance restored to ₱' + res.restoredBalance.toLocaleString();
+            if (res.emailSent) {
+              msg += '<br><small style="color:#0f766e; font-weight:600;">✓ Payment reversal notice & updated schedule PDF emailed to borrower (' + res.borrowerEmail + ').</small>';
+            }
+            document.getElementById('status').innerHTML = '<span style="color:#059669;">' + msg + '</span>';
+            voidBtn.innerText = 'Payment Successfully Voided';
+            voidBtn.style.background = '#059669';
+            setTimeout(() => google.script.host.close(), 2600);
+          })
+          .withFailureHandler(function(err) {
+            isSubmitting = false;
+            execBtn.disabled = false;
+            execBtn.style.pointerEvents = 'auto';
+            execBtn.style.opacity = '1';
+            document.getElementById('executeVoidBtnText').innerText = 'Yes, Void Payment';
+
+            cancelBtn.disabled = false;
+            cancelBtn.style.pointerEvents = 'auto';
+            cancelBtn.style.opacity = '1';
+
+            voidBtn.disabled = false;
+            voidBtn.style.pointerEvents = 'auto';
+            voidBtn.innerText = 'Confirm & Void Payment';
+
+            receiptSel.disabled = false;
+            reasonSel.disabled = false;
+
+            closeConfirmModal();
+            document.getElementById('status').innerHTML = '<span style="color:#dc2626;">Error: ' + err.message + '</span>';
+          })
+          .processVoidPayment(rNo, reason);
+      }
+    </script>
+  </body>
+</html>

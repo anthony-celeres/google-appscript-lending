@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg-color: #ffffff;
+        --border-color: #cbd5e1;
+        --red-primary: #dc2626;
+        --red-hover: #b91c1c;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        padding: 24px;
+      }
+      .header-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 18px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      .icon-box {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: #fef2f2;
+        border: 1px solid #fee2e2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+      }
+      h3 { font-size: 17px; font-weight: 800; color: #dc2626; letter-spacing: -0.01em; }
+      p.subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; font-weight: 500; }
+      .form-group { margin-bottom: 16px; }
+      label {
+        display: block;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: #334155;
+        letter-spacing: 0.05em;
+        margin-bottom: 6px;
+      }
+      select {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1.5px solid var(--border-color);
+        box-sizing: border-box;
+        font-size: 13.5px;
+        background-color: #f8fafc;
+        outline: none;
+        transition: all 0.2s;
+        font-weight: 600;
+      }
+      select:focus {
+        border-color: #dc2626;
+        background-color: #ffffff;
+        box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
+      }
+      .preview-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 14px;
+        margin-bottom: 16px;
+        display: none;
+      }
+      .preview-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12.5px;
+        padding: 4px 0;
+      }
+      .preview-label { color: #64748b; font-weight: 600; }
+      .preview-value { color: #0f172a; font-weight: 700; font-family: monospace; }
+      .warning-box {
+        background: #fff1f2;
+        border: 1px solid #fecdd3;
+        border-radius: 12px;
+        padding: 12px 14px;
+        margin-bottom: 16px;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+      }
+      .warning-box p {
+        font-size: 12px;
+        color: #9f1239;
+        line-height: 1.45;
+        font-weight: 500;
+      }
+      .warning-box strong { font-weight: 800; }
+      .confirm-check {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 18px;
+        cursor: pointer;
+        user-select: none;
+      }
+      .confirm-check input {
+        width: 18px;
+        height: 18px;
+        accent-color: #dc2626;
+        cursor: pointer;
+      }
+      .confirm-check span {
+        font-size: 12px;
+        font-weight: 700;
+        color: #475569;
+      }
+      .btn-delete {
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 12px;
+        background-color: var(--red-primary);
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s;
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+      }
+      .btn-delete:hover:not(:disabled) {
+        background-color: var(--red-hover);
+        transform: translateY(-1px);
+      }
+      .btn-delete:disabled {
+        background-color: #cbd5e1;
+        cursor: not-allowed;
+        box-shadow: none;
+        color: #94a3b8;
+      }
+      #status {
+        margin-top: 14px;
+        font-size: 13px;
+        font-weight: 700;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header-card">
+      <div class="icon-box">
+        <svg class="icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#dc2626" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      </div>
+      <div>
+        <h3>Delete Loan Record</h3>
+        <p class="subtitle">Cascade removes from Loans & Amortization schedules</p>
+      </div>
+    </div>
+
+    <form id="deleteForm" onsubmit="submitDelete(event)">
+      <div class="form-group">
+        <label>Select Target Loan to Delete</label>
+        <select id="loanSelect" required onchange="onLoanSelectChange()">
+          <option value="">Loading all loans...</option>
+        </select>
+      </div>
+
+      <!-- Selected Loan Preview Details -->
+      <div id="loanPreview" class="preview-card">
+        <div class="preview-row">
+          <span class="preview-label">Borrower:</span>
+          <span id="prevBorrower" class="preview-value font-sans" style="font-family: inherit;">-</span>
+        </div>
+        <div class="preview-row">
+          <span class="preview-label">Loan Type:</span>
+          <span id="prevType" class="preview-value">-</span>
+        </div>
+        <div class="preview-row">
+          <span class="preview-label">Original Principal:</span>
+          <span id="prevAmount" class="preview-value text-slate-800">₱0</span>
+        </div>
+        <div class="preview-row">
+          <span class="preview-label">Remaining Balance:</span>
+          <span id="prevBal" class="preview-value" style="color:#b91c1c;">₱0</span>
+        </div>
+        <div class="preview-row">
+          <span class="preview-label">Status:</span>
+          <span id="prevStatus" class="preview-value" style="color:#1d4ed8;">-</span>
+        </div>
+      </div>
+
+      <div class="warning-box">
+        <p>
+          <strong>Permanent Deletion:</strong> This will delete the loan row from the <strong>Loans</strong> tab, all corresponding monthly installment rows from the <strong>Amortization</strong> tab, and any related payment records.
+        </p>
+      </div>
+
+      <label class="confirm-check">
+        <input type="checkbox" id="confirmCheckbox" onchange="toggleDeleteButton()" />
+        <span>I confirm that I want to permanently delete this loan</span>
+      </label>
+
+      <button type="submit" id="deleteButton" class="btn-delete" disabled>
+        <span>Delete Loan & Amortization</span>
+      </button>
+
+      <div id="status"></div>
+    </form>
+
+    <script>
+      let loansList = [];
+
+      function formatMoney(val) {
+        const num = Math.round(Number(val || 0) * 100) / 100;
+        return '₱' + num.toLocaleString(undefined, {
+          minimumFractionDigits: (num % 1 === 0) ? 0 : 2,
+          maximumFractionDigits: 2
+        });
+      }
+
+      function onLoanSelectChange() {
+        const selId = document.getElementById('loanSelect').value;
+        const currentLoan = loansList.find(l => l.loanId === selId);
+        const preview = document.getElementById('loanPreview');
+
+        if (!currentLoan) {
+          preview.style.display = 'none';
+          toggleDeleteButton();
+          return;
+        }
+
+        document.getElementById('prevBorrower').innerText = currentLoan.borrowerName;
+        document.getElementById('prevType').innerText = currentLoan.loanType;
+        document.getElementById('prevAmount').innerText = formatMoney(currentLoan.amount);
+        document.getElementById('prevBal').innerText = formatMoney(currentLoan.remainingBalance);
+        document.getElementById('prevStatus').innerText = currentLoan.status;
+        preview.style.display = 'block';
+
+        toggleDeleteButton();
+      }
+
+      function toggleDeleteButton() {
+        const selId = document.getElementById('loanSelect').value;
+        const confirmed = document.getElementById('confirmCheckbox').checked;
+        const btn = document.getElementById('deleteButton');
+        btn.disabled = !(selId && confirmed);
+      }
+
+      // Load loans list on open
+      google.script.run
+        .withSuccessHandler(function(loans) {
+          loansList = loans || [];
+          const select = document.getElementById('loanSelect');
+          select.innerHTML = '';
+          if (!loans || loans.length === 0) {
+            select.innerHTML = '<option value="">-- No loans found in database --</option>';
+          } else {
+            select.innerHTML = '<option value="">-- Select a Loan to Delete --</option>';
+            loans.forEach(l => {
+              select.innerHTML += `<option value="${l.loanId}">${l.loanId} - ${l.borrowerName} (${formatMoney(l.remainingBalance)} [${l.status}])</option>`;
+            });
+          }
+
+          // Auto-select preselected loan if passed
+          const targetLoanId = window.preselectedLoanId || window.preselectedId;
+          if (targetLoanId && loansList.some(l => l.loanId === targetLoanId)) {
+            select.value = targetLoanId;
+            onLoanSelectChange();
+          }
+        })
+        .withFailureHandler(function(err) {
+          console.error("Failed to load loans for deletion:", err);
+          const select = document.getElementById('loanSelect');
+          select.innerHTML = '<option value="">Error loading loans: ' + (err.message || err) + '</option>';
+        })
+        .getAllLoansForDeletion();
+
+      function submitDelete(e) {
+        e.preventDefault();
+        const loanSelect = document.getElementById('loanSelect');
+        const loanId = loanSelect.value;
+        if (!loanId) return;
+
+        const currentLoan = loansList.find(l => l.loanId === loanId);
+        const bName = currentLoan ? currentLoan.borrowerName : loanId;
+
+        const btn = document.getElementById('deleteButton');
+        btn.disabled = true;
+        btn.innerHTML = '<span>Deleting loan & amortization...</span>';
+
+        const statusDiv = document.getElementById('status');
+        statusDiv.innerHTML = '<span style="color:#b91c1c;">Deleting ' + loanId + ' (' + bName + ')...</span>';
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            statusDiv.innerHTML = '<span style="color:#059669;">Success! Loan ' + res.loanId + ' and ' + res.deletedAmortRows + ' amortization rows deleted.</span>';
+            setTimeout(() => {
+              google.script.host.close();
+            }, 1800);
+          })
+          .withFailureHandler(function(err) {
+            statusDiv.innerHTML = '<span style="color:#dc2626;">Error: ' + err.message + '</span>';
+            btn.disabled = false;
+            btn.innerHTML = '<span>Delete Loan & Amortization</span>';
+          })
+          .processDeleteLoan(loanId);
+      }
+    </script>
+  </body>
+</html>

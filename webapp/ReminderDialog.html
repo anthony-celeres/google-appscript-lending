@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --primary: #0f766e;
+        --primary-hover: #115e59;
+        --navy: #0f2b5c;
+        --border-color: #cbd5e1;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --info: #0284c7;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+      body {
+        background-color: #f8fafc;
+        color: var(--text-main);
+        padding: 20px 24px;
+      }
+      .header-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #e2e8f0;
+        background: #ffffff;
+        padding: 14px 18px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+      }
+      .icon-box {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+      }
+      h3 { font-size: 17px; font-weight: 800; color: #0f766e; letter-spacing: -0.01em; }
+      p.subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; font-weight: 500; }
+
+      /* Summary Badges Bar */
+      .summary-cards {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+      .summary-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 10px 12px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        text-align: center;
+      }
+      .summary-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-1px);
+      }
+      .summary-card.active {
+        border-color: var(--primary);
+        background: #f0fdfa;
+        box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.15);
+      }
+      .summary-card .count {
+        font-size: 19px;
+        font-weight: 800;
+        line-height: 1.1;
+      }
+      .summary-card .label {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        margin-top: 4px;
+      }
+      .count-overdue { color: #dc2626; }
+      .count-today { color: #d97706; }
+      .count-upcoming { color: #0284c7; }
+      .count-all { color: #0f2b5c; }
+
+      /* Controls Bar */
+      .controls-bar {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .search-box {
+        flex: 1;
+        position: relative;
+      }
+      .search-box input {
+        width: 100%;
+        padding: 9px 12px 9px 34px;
+        border: 1px solid var(--border-color);
+        border-radius: 9px;
+        font-size: 12.5px;
+        outline: none;
+        background: #ffffff;
+      }
+      .search-box input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
+      }
+      .search-icon {
+        position: absolute;
+        left: 11px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 13px;
+        color: var(--text-muted);
+      }
+      .select-all-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #334155;
+        cursor: pointer;
+        user-select: none;
+        background: #ffffff;
+        padding: 8px 14px;
+        border-radius: 9px;
+        border: 1px solid var(--border-color);
+        flex-shrink: 0;
+      }
+
+      /* Loans List */
+      .table-container {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        max-height: 290px;
+        overflow-y: auto;
+        margin-bottom: 16px;
+      }
+      .loan-row {
+        display: flex;
+        align-items: center;
+        padding: 12px 14px;
+        border-bottom: 1px solid #f1f5f9;
+        gap: 12px;
+        transition: background 0.12s ease;
+      }
+      .loan-row:last-child { border-bottom: none; }
+      .loan-row:hover { background: #f8fafc; }
+      .loan-row input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--primary);
+        cursor: pointer;
+      }
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        flex-shrink: 0;
+        min-width: 82px;
+        justify-content: center;
+      }
+      .pill-overdue {
+        background: #fee2e2;
+        color: #b91c1c;
+        border: 1px solid #fca5a5;
+      }
+      .pill-today {
+        background: #fef3c7;
+        color: #b45309;
+        border: 1px solid #fde68a;
+      }
+      .pill-upcoming {
+        background: #e0f2fe;
+        color: #0369a1;
+        border: 1px solid #bae6fd;
+      }
+      .pill-grace {
+        background: #eff6ff;
+        color: #1e40af;
+        border: 1px solid #bfdbfe;
+      }
+      .badge-sent-today {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        background: #f1f5f9;
+        color: #475569;
+        border: 1px solid #cbd5e1;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 1px 6px;
+        border-radius: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+      .badge-sent-today svg {
+        flex-shrink: 0;
+      }
+      .loan-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .borrower-name {
+        font-size: 13px;
+        font-weight: 700;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .loan-subtext {
+        font-size: 11px;
+        color: var(--text-muted);
+        margin-top: 2px;
+      }
+      .amount-due-box {
+        text-align: right;
+        flex-shrink: 0;
+      }
+      .due-amt {
+        font-size: 13.5px;
+        font-weight: 800;
+        color: #0f2b5c;
+        font-family: monospace;
+      }
+      .due-date-str {
+        font-size: 11px;
+        color: var(--text-muted);
+        margin-top: 2px;
+      }
+
+      /* Empty State */
+      .empty-box {
+        padding: 36px 20px;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 13px;
+      }
+      .empty-box span {
+        font-size: 30px;
+        display: block;
+        margin-bottom: 8px;
+      }
+
+      /* Action Bar */
+      .action-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #ffffff;
+        padding: 14px 18px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+      }
+      .selected-count-label {
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--text-muted);
+      }
+      .selected-count-label strong {
+        color: var(--primary);
+      }
+      .btn-primary {
+        background: var(--primary);
+        color: #ffffff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: background 0.15s ease;
+      }
+      .btn-primary:hover { background: var(--primary-hover); }
+      .btn-primary:disabled {
+        background: #94a3b8;
+        cursor: not-allowed;
+      }
+
+      #statusMsg {
+        margin-top: 12px;
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-size: 12.5px;
+        display: none;
+      }
+      .msg-success {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        color: #166534;
+      }
+      .msg-error {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #991b1b;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header-card">
+      <div class="icon-box">
+        <svg class="icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#0f766e" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </div>
+      <div>
+        <h3>Payment Reminders & Due Date Hub</h3>
+        <p class="subtitle">Smart Advance-Aware Deadline Tracker & 1-Click Batch Notifier</p>
+      </div>
+    </div>
+
+    <!-- 4 Filter Tabs -->
+    <div class="summary-cards">
+      <div class="summary-card active" id="tabAll" onclick="setFilter('all')">
+        <div class="count count-all" id="countAll">0</div>
+        <div class="label">All Accounts</div>
+      </div>
+      <div class="summary-card" id="tabOverdue" onclick="setFilter('overdue')">
+        <div class="count count-overdue" id="countOverdue">0</div>
+        <div class="label">Overdue</div>
+      </div>
+      <div class="summary-card" id="tabToday" onclick="setFilter('today')">
+        <div class="count count-today" id="countToday">0</div>
+        <div class="label">Due Today</div>
+      </div>
+      <div class="summary-card" id="tabUpcoming" onclick="setFilter('upcoming')">
+        <div class="count count-upcoming" id="countUpcoming">0</div>
+        <div class="label">Upcoming</div>
+      </div>
+    </div>
+
+    <!-- Controls Bar -->
+    <div class="controls-bar">
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search by member name or loan ID..." oninput="renderList()" />
+      </div>
+      <label class="select-all-wrapper">
+        <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()" checked />
+        <span>Select All</span>
+      </label>
+    </div>
+
+    <!-- List Table Container -->
+    <div class="table-container" id="listContainer">
+      <div class="empty-box">
+        Loading active loans and verifying payment schedules...
+      </div>
+    </div>
+
+    <!-- Action Footer -->
+    <div class="action-footer">
+      <div class="selected-count-label">
+        Selected: <strong id="selectedCounter">0</strong> accounts
+      </div>
+      <button class="btn-primary" id="sendBtn" onclick="sendSelectedReminders()">
+        <span id="sendBtnText">Send Reminders</span>
+      </button>
+    </div>
+
+    <div id="statusMsg"></div>
+
+    <script>
+      let reminderData = [];
+      let activeFilter = 'all';
+      const selectedLoanIds = new Set();
+
+      window.addEventListener('DOMContentLoaded', () => {
+        loadReminders();
+      });
+
+      function loadReminders() {
+        google.script.run
+          .withSuccessHandler(data => {
+            reminderData = data || [];
+            // Pre-select accounts due within 7 days (or overdue/today) that were NOT sent today
+            selectedLoanIds.clear();
+            reminderData.forEach(item => {
+              const isUrgent = (item.tier === 'overdue' || item.tier === 'today' || item.daysUntilDue <= 7);
+              if (!item.sentToday && isUrgent) {
+                selectedLoanIds.add(item.loanId);
+              }
+            });
+            const selectAllBox = document.getElementById('selectAllCheckbox');
+            if (selectAllBox) {
+              selectAllBox.checked = (selectedLoanIds.size === reminderData.length && reminderData.length > 0);
+            }
+            updateCounts();
+            renderList();
+          })
+          .withFailureHandler(err => {
+            document.getElementById('listContainer').innerHTML = `
+              <div class="empty-box" style="color:#b91c1c;">
+                Failed to load loans: ${err.message}
+              </div>
+            `;
+          })
+          .getPaymentRemindersList();
+      }
+
+      function updateCounts() {
+        const cOverdue = reminderData.filter(i => i.tier === 'overdue').length;
+        const cToday = reminderData.filter(i => i.tier === 'today').length;
+        const cUpcoming = reminderData.filter(i => i.tier === 'upcoming').length;
+
+        document.getElementById('countAll').innerText = reminderData.length;
+        document.getElementById('countOverdue').innerText = cOverdue;
+        document.getElementById('countToday').innerText = cToday;
+        document.getElementById('countUpcoming').innerText = cUpcoming;
+      }
+
+      function setFilter(filterType) {
+        activeFilter = filterType;
+        ['All', 'Overdue', 'Today', 'Upcoming'].forEach(tab => {
+          const el = document.getElementById('tab' + tab);
+          if (el) el.classList.remove('active');
+        });
+        const activeTabEl = document.getElementById('tab' + filterType.charAt(0).toUpperCase() + filterType.slice(1));
+        if (activeTabEl) activeTabEl.classList.add('active');
+        renderList();
+      }
+
+      function renderList() {
+        const query = document.getElementById('searchInput').value.trim().toLowerCase();
+        const container = document.getElementById('listContainer');
+
+        const filtered = reminderData.filter(item => {
+          if (activeFilter !== 'all' && item.tier !== activeFilter) return false;
+          if (query) {
+            const matchesName = item.borrowerName.toLowerCase().includes(query);
+            const matchesId = item.loanId.toLowerCase().includes(query);
+            if (!matchesName && !matchesId) return false;
+          }
+          return true;
+        });
+
+        if (filtered.length === 0) {
+          container.innerHTML = `
+            <div class="empty-box">
+              No accounts match the selected filter.
+            </div>
+          `;
+          updateSelectedCounter();
+          return;
+        }
+
+        let html = '';
+        filtered.forEach(item => {
+          const isChecked = selectedLoanIds.has(item.loanId) ? 'checked' : '';
+          let pillClass = 'pill-upcoming';
+          let pillText = `IN ${item.daysUntilDue} DAYS`;
+
+          if (item.tier === 'overdue') {
+            if (item.isGracePeriod) {
+              pillClass = 'pill-grace';
+              pillText = `GRACE (${item.graceDaysLeft}D)`;
+            } else {
+              pillClass = 'pill-overdue';
+              pillText = `${item.daysOverdue}D LATE`;
+            }
+          } else if (item.tier === 'today') {
+            pillClass = 'pill-today';
+            pillText = 'DUE TODAY';
+          }
+
+          const fmtMoney = Number(item.amountDue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+          const emailNotice = item.email ? `<span style="color:#0f766e; font-size:11px;">${item.email}</span>` : `<span style="color:#94a3b8; font-size:11px;">No email on file</span>`;
+          const penaltyTag = (item.penaltyAmount > 0) ? `<span style="color:#b91c1c; font-weight:700; font-size:11px;"> • +₱${Number(item.penaltyAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Penalty</span>` : (item.isGracePeriod ? `<span style="color:#1e40af; font-size:11px;"> • 30d Grace Period Active</span>` : '');
+
+          let sentBadge = '';
+          let sentSubtext = '';
+          if (item.sentToday) {
+            sentBadge = `<span class="badge-sent-today" title="Reminder already dispatched today (${item.lastSentDisplay || ''})"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>SENT TODAY</span>`;
+            sentSubtext = ` • <span style="color:#64748b; font-weight:600;">Sent today (${(item.lastSentDisplay || '').split(' ').slice(1).join(' ') || 'Logged'})</span>`;
+          } else if (item.lastSentDisplay) {
+            sentSubtext = ` • <span style="color:#94a3b8;">Last sent: ${item.lastSentDisplay.split(' ')[0]}</span>`;
+          }
+
+          html += `
+            <div class="loan-row">
+              <input type="checkbox" id="chk_${item.loanId}" onchange="toggleLoan('${item.loanId}')" ${isChecked} />
+              <div class="status-pill ${pillClass}">${pillText}</div>
+              <div class="loan-info">
+                <div class="borrower-name">
+                  ${item.borrowerName}
+                  <span style="font-size:11px; font-weight:normal; color:#64748b; font-family:monospace;">[${item.loanId}]</span>
+                  ${sentBadge}
+                </div>
+                <div class="loan-subtext">
+                  ${item.isUnderpaid ? '<span style="background:#fee2e2; color:#b91c1c; font-weight:700; font-size:10px; padding:1px 5px; border-radius:4px; margin-right:4px;">UNDERPAID</span>' : ''}Month #${item.monthIndex} (${item.monthName}) • ${emailNotice}${penaltyTag}${sentSubtext}
+                </div>
+              </div>
+              <div class="amount-due-box">
+                <div class="due-amt">₱${fmtMoney}</div>
+                <div class="due-date-str">Due: ${item.dueDate}</div>
+              </div>
+            </div>
+          `;
+        });
+
+        container.innerHTML = html;
+        updateSelectedCounter();
+      }
+
+      function toggleLoan(loanId) {
+        if (selectedLoanIds.has(loanId)) {
+          selectedLoanIds.delete(loanId);
+        } else {
+          selectedLoanIds.add(loanId);
+        }
+        updateSelectedCounter();
+      }
+
+      function toggleSelectAll() {
+        const selectAll = document.getElementById('selectAllCheckbox').checked;
+        const query = document.getElementById('searchInput').value.trim().toLowerCase();
+
+        const currentlyVisible = reminderData.filter(item => {
+          if (activeFilter !== 'all' && item.tier !== activeFilter) return false;
+          if (query) {
+            const matchesName = item.borrowerName.toLowerCase().includes(query);
+            const matchesId = item.loanId.toLowerCase().includes(query);
+            if (!matchesName && !matchesId) return false;
+          }
+          return true;
+        });
+
+        currentlyVisible.forEach(item => {
+          if (selectAll) {
+            selectedLoanIds.add(item.loanId);
+          } else {
+            selectedLoanIds.delete(item.loanId);
+          }
+        });
+
+        renderList();
+      }
+
+      function updateSelectedCounter() {
+        const count = selectedLoanIds.size;
+        document.getElementById('selectedCounter').innerText = count;
+        document.getElementById('sendBtnText').innerText = count > 0 ? `Send Reminders (${count})` : 'Send Reminders';
+        document.getElementById('sendBtn').disabled = count === 0;
+      }
+
+      function sendSelectedReminders() {
+        if (selectedLoanIds.size === 0) return;
+
+        const targetLoanIds = Array.from(selectedLoanIds);
+        const btn = document.getElementById('sendBtn');
+        const statusBox = document.getElementById('statusMsg');
+
+        btn.disabled = true;
+        btn.innerHTML = 'Sending reminders...';
+        statusBox.style.display = 'none';
+
+        google.script.run
+          .withSuccessHandler(res => {
+            btn.disabled = false;
+            btn.innerHTML = '<span id="sendBtnText">Send Reminders</span>';
+            if (res.success) {
+              if (res.sentCount > 0) {
+                statusBox.className = 'msg-success';
+                statusBox.style.display = 'block';
+                statusBox.innerHTML = `
+                  <strong>Batch Reminders Sent Successfully!</strong><br>
+                  • Sent: <strong>${res.sentCount}</strong> emails dispatched via mail service.<br>
+                  ${res.skippedCount > 0 ? `• Skipped: <strong>${res.skippedCount}</strong> (no email on file).` : ''}
+                `;
+              } else {
+                statusBox.className = 'msg-error';
+                statusBox.style.display = 'block';
+                statusBox.innerHTML = `
+                  <strong>No Reminders Dispatched</strong><br>
+                  Selected loan account(s) do not have a registered borrower email address in the Borrowers sheet (Skipped: ${res.skippedCount}).
+                `;
+              }
+              const now = new Date();
+              const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+              const yyyy = now.getFullYear();
+              const mm = String(now.getMonth() + 1).padStart(2, '0');
+              const dd = String(now.getDate()).padStart(2, '0');
+              const nowIso = `${yyyy}-${mm}-${dd}`;
+
+              targetLoanIds.forEach(id => {
+                const item = reminderData.find(r => String(r.loanId) === String(id));
+                if (item && item.email && item.email.includes('@')) {
+                  item.sentToday = true;
+                  item.lastSentDisplay = nowIso + ' ' + timeStr;
+                }
+              });
+              selectedLoanIds.clear();
+              const selectAllBox = document.getElementById('selectAllCheckbox');
+              if (selectAllBox) selectAllBox.checked = false;
+              updateSelectedCounter();
+              renderList();
+            } else {
+              statusBox.className = 'msg-error';
+              statusBox.style.display = 'block';
+              statusBox.innerHTML = `Error: ${res.error}`;
+            }
+          })
+          .withFailureHandler(err => {
+            btn.disabled = false;
+            btn.innerHTML = '<span id="sendBtnText">Send Reminders</span>';
+            statusBox.className = 'msg-error';
+            statusBox.style.display = 'block';
+            statusBox.innerHTML = `System Error: ${err.message}`;
+          })
+          .processSendPaymentReminders(targetLoanIds);
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,2409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cooperative Lending Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+      --border-subtle: #f1f5f9;
+      --text: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      
+      --primary: #0f172a;
+      --primary-hover: #1e293b;
+      
+      --accent: #059669;
+      --accent-hover: #047857;
+      --accent-light: #ecfdf5;
+      
+      --danger: #e11d48;
+      --danger-light: #fff1f2;
+      --danger-border: #ffe4e6;
+      
+      --warning: #d97706;
+      --warning-light: #fffbeb;
+      --warning-border: #fef3c7;
+      
+      --info: #2563eb;
+      --info-light: #eff6ff;
+      --info-border: #dbeafe;
+
+      --font: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* SVG Icon Utility */
+    .icon {
+      width: 15px;
+      height: 15px;
+      stroke-width: 2;
+      stroke: currentColor;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      display: inline-block;
+      vertical-align: middle;
+      flex-shrink: 0;
+    }
+    .icon-lg {
+      width: 22px;
+      height: 22px;
+    }
+
+    /* ==========================================================================
+       1. FULL-SCREEN LOADING / SPLASH SCREEN
+       ========================================================================== */
+    #splashScreen {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 50% 30%, #1e293b 0%, #0f172a 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      color: #ffffff;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+    #splashScreen.fade-out {
+      opacity: 0;
+      visibility: hidden;
+    }
+    .splash-logo {
+      width: 64px;
+      height: 64px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      color: #10b981;
+    }
+    .splash-title {
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+    .splash-sub {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .loading-bar-wrapper {
+      width: 200px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 99px;
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 12px;
+    }
+    .loading-bar-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 40%;
+      background: #10b981;
+      border-radius: 99px;
+      animation: loadSlide 1.5s infinite ease-in-out;
+    }
+    @keyframes loadSlide {
+      0% { left: -40%; width: 40%; }
+      50% { left: 30%; width: 60%; }
+      100% { left: 100%; width: 40%; }
+    }
+    .splash-status {
+      font-size: 11px;
+      font-family: var(--mono);
+      color: #94a3b8;
+      letter-spacing: 0.5px;
+    }
+
+    /* ==========================================================================
+       2. AUTHENTICATION VIEW (SIGN IN / SIGN UP)
+       ========================================================================== */
+    #authView {
+      display: none;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 20px;
+      background: radial-gradient(120% 80% at 50% 10%, #e6f4f1 0%, #f0fdfa 25%, #f8fafc 60%, #e2e8f0 100%);
+      position: relative;
+    }
+    #authView::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 18% 22%, rgba(15, 118, 110, 0.07) 0%, transparent 42%),
+                  radial-gradient(circle at 82% 78%, rgba(15, 43, 92, 0.07) 0%, transparent 42%);
+      pointer-events: none;
+    }
+    .auth-card {
+      width: 100%;
+      max-width: 418px;
+      background: #ffffff;
+      border: 1px solid rgba(203, 213, 225, 0.85);
+      border-radius: 20px;
+      padding: 38px 34px 28px;
+      box-shadow: 0 25px 50px -12px rgba(15, 43, 92, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+    .auth-coop-name {
+      font-size: 11px;
+      font-weight: 800;
+      color: #0f766e;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .auth-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: #0f2b5c;
+      letter-spacing: -0.02em;
+      margin-bottom: 22px;
+    }
+    .form-group {
+      margin-bottom: 16px;
+      text-align: left;
+    }
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 800;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+    .form-control {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-family: inherit;
+      color: #0f172a;
+      background: #f8fafc;
+      transition: all 0.15s ease;
+    }
+    .form-control:focus {
+      outline: none;
+      background: #ffffff;
+      border-color: #0f766e;
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.14);
+    }
+    .password-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .password-wrapper .form-control {
+      padding-right: 42px;
+    }
+    .btn-toggle-pwd {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .btn-toggle-pwd:hover {
+      color: #0f2b5c;
+      background: #e2e8f0;
+    }
+    .auth-btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #0f2b5c 0%, #1e3a8a 100%);
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 700;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      margin-top: 8px;
+      box-shadow: 0 4px 14px rgba(15, 43, 92, 0.2);
+    }
+    .auth-btn:hover {
+      background: linear-gradient(135deg, #091e42 0%, #172554 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(15, 43, 92, 0.28);
+    }
+    .auth-btn:active {
+      transform: translateY(0);
+    }
+    .auth-security-footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 22px;
+      padding-top: 16px;
+      border-top: 1px solid #f1f5f9;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #64748b;
+      letter-spacing: 0.02em;
+    }
+    .auth-security-footer svg {
+      flex-shrink: 0;
+    }
+    .auth-error {
+      margin-top: 14px;
+      padding: 10px 14px;
+      background: #fef2f2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+      font-size: 12.5px;
+      border-radius: 8px;
+      display: none;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    /* ==========================================================================
+       3. MAIN CASHIER DASHBOARD (STREAMLINED FINTECH PORTAL)
+       ========================================================================== */
+    #dashboardView {
+      display: none;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Top Sticky Navigation Bar */
+    .top-navbar {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .navbar-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 10px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .nav-logo-icon {
+      width: 34px;
+      height: 34px;
+      background: #0f172a;
+      color: #ffffff;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .nav-brand-title {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.3px;
+      line-height: 1.2;
+    }
+    .nav-brand-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Right Nav Actions */
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-sheet-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .btn-sheet-link:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+    .btn-sync {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 11px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-sync:hover {
+      background: #f8fafc;
+      color: #0f172a;
+    }
+    .btn-primary-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 13px;
+      background: var(--accent);
+      color: #ffffff;
+      border: none;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-primary-action:hover {
+      background: var(--accent-hover);
+    }
+    .nav-user-menu {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 10px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #1e293b;
+    }
+    .btn-logout {
+      padding: 3px 6px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 4px;
+      transition: all 0.15s;
+    }
+    .btn-logout:hover {
+      color: var(--danger);
+      background: var(--danger-light);
+    }
+
+    /* Sub-Navbar / Tabs */
+    .subnav-bar {
+      border-bottom: 1px solid var(--border);
+      background: #ffffff;
+    }
+    .subnav-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .nav-tabs {
+      display: flex;
+      gap: 2px;
+    }
+    .nav-tab-item {
+      padding: 12px 16px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-tab-item:hover {
+      color: #0f172a;
+    }
+    .nav-tab-item.active {
+      color: #0f172a;
+      font-weight: 700;
+      border-bottom-color: #0f172a;
+    }
+
+    .subnav-tools {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .subnav-tool-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 9px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .subnav-tool-btn:hover {
+      background: #f8fafc;
+      border-color: var(--border);
+      color: #0f172a;
+    }
+
+    /* Operations Dropdown */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 100%;
+      margin-top: 6px;
+      background: #ffffff;
+      min-width: 240px;
+      box-shadow: 0 12px 28px -4px rgba(15, 23, 42, 0.12), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 6px;
+      z-index: 200;
+      animation: menuPop 0.15s ease-out;
+    }
+    @keyframes menuPop {
+      0% { opacity: 0; transform: translateY(-4px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .dropdown-menu.show {
+      display: block;
+    }
+    .dropdown-header {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      padding: 7px 10px 3px 10px;
+    }
+    .dropdown-menu a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      color: #334155;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 6px;
+      transition: background 0.12s;
+    }
+    .dropdown-menu a:hover {
+      background: #f8fafc;
+      color: #0f172a;
+    }
+    .dropdown-divider {
+      height: 1px;
+      background: var(--border-subtle);
+      margin: 4px 0;
+    }
+
+    /* Main Content Container */
+    .main-content {
+      flex: 1;
+      padding: 18px 24px;
+      max-width: 1440px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* ==========================================================================
+       FINANCIAL EXECUTIVE PANEL & RADAR PIPELINE (OPTION A)
+       ========================================================================== */
+    .financial-executive-panel {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    }
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .panel-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .panel-icon-box {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: #f1f5f9;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .panel-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.2px;
+    }
+    .panel-sub {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+    .panel-active-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #d1fae5;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+    }
+    .panel-metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 640px) {
+      .panel-metrics-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+    }
+    .hero-metric {
+      background: #f8fafc;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .hero-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .hero-val {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      font-variant-numeric: tabular-nums;
+      margin-bottom: 3px;
+    }
+    .val-receivable {
+      color: #0f172a;
+    }
+    .val-collected {
+      color: #059669;
+    }
+    .hero-sub {
+      font-size: 11px;
+      color: var(--text-secondary);
+      display: block;
+    }
+    .breakdown-container {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .breakdown-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .breakdown-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-secondary);
+    }
+    .breakdown-total {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .segmented-bar {
+      height: 8px;
+      border-radius: 99px;
+      background: #f1f5f9;
+      display: flex;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .segment {
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+    .seg-principal { background: #059669; }
+    .seg-interest { background: #0284c7; }
+    .seg-penalties { background: #d97706; }
+
+    .breakdown-legend {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dot-principal { background: #059669; }
+    .dot-interest { background: #0284c7; }
+    .dot-penalties { background: #d97706; }
+
+    .legend-info {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      font-size: 12px;
+      flex-wrap: wrap;
+    }
+    .legend-label {
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+    .legend-val {
+      font-weight: 700;
+      color: #0f172a;
+      font-variant-numeric: tabular-nums;
+    }
+    .legend-pct {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Radar Tabs Toolbar */
+    .radar-tabs-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .radar-tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .radar-tab-btn:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+      border-color: #cbd5e1;
+    }
+    .radar-tab-btn.active {
+      background: #0f172a;
+      color: #ffffff;
+      border-color: #0f172a;
+    }
+    .radar-tab-btn .tab-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1px 6px;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 99px;
+      background: #e2e8f0;
+      color: #334155;
+      min-width: 18px;
+    }
+    .radar-tab-btn.active .tab-badge {
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+    }
+    .status-indicator {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .ind-today { background: #2563eb; }
+    .ind-upcoming { background: #0284c7; }
+    .ind-grace { background: #d97706; }
+    .ind-pastgrace { background: #e11d48; }
+
+    /* Unified Content Panel */
+    .content-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+      overflow: hidden;
+    }
+    .content-toolbar {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      background: #ffffff;
+    }
+    .search-wrapper {
+      position: relative;
+      width: 250px;
+    }
+    .search-input {
+      width: 100%;
+      padding: 6px 10px 6px 30px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      font-size: 12px;
+      outline: none;
+      background: #ffffff;
+      transition: border-color 0.15s;
+    }
+    .search-input:focus {
+      border-color: #0f172a;
+    }
+    .search-icon {
+      position: absolute;
+      left: 9px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 11px;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Financial Tables */
+    .table-responsive {
+      overflow-x: auto;
+      max-height: 580px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 12px;
+    }
+    th {
+      background: #f8fafc;
+      color: var(--text-secondary);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 10px;
+      letter-spacing: 0.5px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      white-space: nowrap;
+    }
+    td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: #1e293b;
+      font-variant-numeric: tabular-nums;
+      vertical-align: middle;
+    }
+    tr:hover td {
+      background-color: #fbfcfd;
+    }
+    .num {
+      font-family: var(--mono);
+      font-size: 11.5px;
+    }
+
+    /* Status Badges */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 7px;
+      border-radius: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .status-ontime {
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #d1fae5;
+    }
+    .status-today {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+    }
+    .status-upcoming {
+      background: #f0f9ff;
+      color: #0284c7;
+      border: 1px solid #bae6fd;
+    }
+    .status-grace {
+      background: #fefce8;
+      color: #a16207;
+      border: 1px solid #fef08a;
+    }
+    .status-overdue {
+      background: #fff1f2;
+      color: #be123c;
+      border: 1px solid #ffe4e6;
+    }
+
+    /* Table Actions */
+    .btn-table-action {
+      padding: 4px 7px;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 5px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      color: #334155;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.12s;
+    }
+    .btn-table-action:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+      border-color: #cbd5e1;
+    }
+    .btn-table-action.primary {
+      background: #ecfdf5;
+      color: #047857;
+      border-color: #a7f3d0;
+    }
+    .btn-table-action.primary:hover {
+      background: #d1fae5;
+    }
+    .btn-table-action.danger {
+      color: var(--danger);
+      background: var(--danger-light);
+      border-color: var(--danger-border);
+    }
+    .btn-table-action.danger:hover {
+      background: #ffe4e6;
+    }
+
+    /* ==========================================================================
+       4. AMORTIZATION SCHEDULE TAB
+       ========================================================================== */
+    .amort-container {
+      padding: 14px 18px;
+    }
+    .amort-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 14px;
+    }
+    .amort-selector-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .amort-selector-group label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .amort-select {
+      width: 360px;
+      max-width: 100%;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #0f172a;
+      background: #ffffff;
+      outline: none;
+    }
+    .amort-select:focus {
+      border-color: #0f172a;
+    }
+
+    /* Borrower Snapshot Banner */
+    .amort-snapshot {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 14px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 992px) {
+      .amort-snapshot {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    @media (max-width: 576px) {
+      .amort-snapshot {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    .snapshot-col {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .snapshot-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .snapshot-value {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    /* Modal Overlay (Existing Dialogs Integration) */
+    #modalOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(2px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 16px;
+    }
+    .modal-container {
+      background: #ffffff;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 600px;
+      height: 88vh;
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.2);
+    }
+    .modal-header {
+      padding: 12px 18px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .modal-close {
+      background: transparent;
+      border: none;
+      font-size: 16px;
+      color: var(--text-muted);
+      cursor: pointer;
+      line-height: 1;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .modal-close:hover {
+      color: var(--text);
+      background: #f1f5f9;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================================================
+       1. SPLASH / LOADING SCREEN
+       ======================================================================== -->
+  <div id="splashScreen">
+    <div class="splash-title">SAINT JOSEPH MULTIPURPOSE COOPERATIVE</div>
+    <div class="splash-sub">Official Cashier & Administration Portal</div>
+    <div class="loading-bar-wrapper">
+      <div class="loading-bar-fill"></div>
+    </div>
+    <div id="splashStatus" class="splash-status">CONNECTING TO DATABASE...</div>
+  </div>
+
+  <!-- ========================================================================
+       2. CASHIER AUTHENTICATION SCREEN (LOGIN & SIGN UP)
+       ======================================================================== -->
+  <div id="authView">
+    <div class="auth-card">
+      <div class="auth-coop-name">Saint Joseph Multipurpose Cooperative</div>
+      <div class="auth-title">Sign In</div>
+
+      <!-- Secure Sign In Form Only (Public Registration Disabled) -->
+      <form id="signInForm" onsubmit="handleSignIn(event)">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="loginUsername" class="form-control" placeholder="Enter username" required autocomplete="username" />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <div class="password-wrapper">
+            <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required autocomplete="current-password" />
+            <button type="button" class="btn-toggle-pwd" onclick="togglePasswordVisibility('loginPassword', this)" title="Show / Hide Password" aria-label="Toggle password visibility">
+              <svg class="pwd-eye-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <button type="submit" id="loginSubmitBtn" class="auth-btn">Sign In to Dashboard</button>
+        <div class="auth-security-footer">
+          Authorized personnel only
+        </div>
+      </form>
+
+      <div id="authError" class="auth-error"></div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       3. MAIN CASHIER DASHBOARD (STREAMLINED FINTECH PORTAL)
+       ======================================================================== -->
+  <div id="dashboardView">
+    <!-- Top Navbar -->
+    <header class="top-navbar">
+      <div class="navbar-inner">
+        <div class="nav-brand">
+          <div>
+            <div class="nav-brand-title">Saint Joseph Multipurpose Cooperative</div>
+            <div class="nav-brand-sub">Daily Cashier & Collections</div>
+          </div>
+        </div>
+
+        <div class="nav-actions">
+          <!-- Primary Direct Action -->
+          <button class="btn-primary-action" onclick="openPaymentModalAction()" title="Record Payment (Cash / Online)">
+            <svg class="icon" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            <span>Record Payment</span>
+          </button>
+
+          <!-- Quick Dropdown for All Operations -->
+          <div class="dropdown">
+            <button class="btn-sync" onclick="toggleAdminDropdown(event)">
+              <svg class="icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              <span>Actions</span>
+              <svg class="icon" style="width:10px; height:10px; margin-left:1px;" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div id="adminDropdownMenu" class="dropdown-menu">
+              <div class="dropdown-header">Transactions & Loans</div>
+              <a href="javascript:void(0)" onclick="openNewLoanModalAction()">
+                <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>New Loan & Schedule</span>
+              </a>
+              <a href="javascript:void(0)" onclick="openBorrowerModalAction()">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/></svg>
+                <span>Register Borrower</span>
+              </a>
+              <a href="javascript:void(0)" onclick="openPdfModalAction()">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <span>Export Statement PDF</span>
+              </a>
+              <a href="javascript:void(0)" onclick="openRemindersModalAction()">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                <span>Reminders & Due Dates</span>
+              </a>
+              <div class="dropdown-divider"></div>
+              <div class="dropdown-header">Record Management</div>
+              <a href="javascript:void(0)" onclick="openModalDialog('EditBorrowerDialog', 'Edit Borrower Information')">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                <span>Edit Borrower Info</span>
+              </a>
+              <a href="javascript:void(0)" onclick="openModalDialog('EditLoanDialog', 'Edit Loan Record & Terms')">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                <span>Edit Loan Record</span>
+              </a>
+              <a href="javascript:void(0)" onclick="openModalDialog('VoidPaymentDialog', 'Void / Reverse Error Payment')">
+                <svg class="icon" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                <span>Void Error Payment</span>
+              </a>
+              <a href="javascript:void(0)" onclick="openModalDialog('FilterDialog', 'Filter Database Records')">
+                <svg class="icon" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                <span>Multi-Sheet Filter Tool</span>
+              </a>
+              <div class="dropdown-divider"></div>
+              <div class="dropdown-header">Danger & Database</div>
+              <a href="javascript:void(0)" onclick="openModalDialog('DeleteLoanDialog', 'Delete Loan & Schedule')">
+                <svg class="icon" style="color:var(--danger);" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                <span style="color:var(--danger);">Delete Loan & Schedule</span>
+              </a>
+              <a href="javascript:void(0)" onclick="openModalDialog('DeleteBorrowerDialog', 'Delete Borrower Record')">
+                <svg class="icon" style="color:var(--danger);" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                <span style="color:var(--danger);">Delete Borrower Record</span>
+              </a>
+              <a href="javascript:void(0)" onclick="handleSetupDatabase()">
+                <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <span>Verify Database Setup</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Sync Data Button -->
+          <button class="btn-sync" onclick="refreshDashboardData()" title="Sync live data from Google Sheet">
+            <svg class="icon" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            <span>Sync</span>
+          </button>
+
+          <!-- Master Sheet Link -->
+          <a id="btnMasterSheet" href="#" target="_blank" class="btn-sheet-link" title="Open Master Google Spreadsheet">
+            <svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span>Master Sheet</span>
+          </a>
+
+          <!-- User Info & Logout -->
+          <div class="nav-user-menu">
+            <span id="navUserName">Admin</span>
+            <span style="opacity:0.4;">|</span>
+            <span id="navUserRole" style="font-size:10px; color:var(--text-muted); text-transform:uppercase;">ADMIN</span>
+            <button class="btn-logout" onclick="handleLogout()" title="Sign Out">Sign Out</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Sub-Navbar with Sleek View Tabs -->
+    <nav class="subnav-bar">
+      <div class="subnav-inner">
+        <div class="nav-tabs">
+          <button id="tabLoansBtn" class="nav-tab-item active" onclick="switchDataTab('loans')">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            <span>Active Loans</span>
+          </button>
+          <button id="tabAmortBtn" class="nav-tab-item" onclick="switchDataTab('amort')">
+            <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span>Amortization Schedule</span>
+          </button>
+          <button id="tabBorrowersBtn" class="nav-tab-item" onclick="switchDataTab('borrowers')">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>Borrowers Directory</span>
+          </button>
+          <button id="tabPaymentsBtn" class="nav-tab-item" onclick="switchDataTab('payments')">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="12" y2="15"/></svg>
+            <span>Recent Receipts</span>
+          </button>
+          <button id="tabAuditsBtn" class="nav-tab-item" onclick="switchDataTab('audits')">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Audit Trail</span>
+          </button>
+        </div>
+
+        <div class="subnav-tools">
+          <button class="subnav-tool-btn" onclick="openNewLoanModalAction()">
+            <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>New Loan</span>
+          </button>
+          <button class="subnav-tool-btn" onclick="openBorrowerModalAction()">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/></svg>
+            <span>New Borrower</span>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Executive Financial Health & Collections Breakdown Panel -->
+      <section class="financial-executive-panel">
+        <div class="panel-header">
+          <div class="panel-title-wrap">
+            <div class="panel-icon-box">
+              <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <div>
+              <div class="panel-title">Portfolio Receivables & Inflows</div>
+              <div class="panel-sub">Cooperative lending capital, collected inflows, and net revenue</div>
+            </div>
+          </div>
+          <div class="panel-active-badge">
+            <span class="pulse-dot"></span>
+            <span id="execActiveLoansCount">0</span> Active Portfolios
+          </div>
+        </div>
+
+        <div class="panel-metrics-grid">
+          <!-- Hero Metric 1: Total Outstanding Balance -->
+          <div class="hero-metric">
+            <span class="hero-label">Total Outstanding Balance</span>
+            <div id="kpiOutstanding" class="hero-val val-receivable">₱0.00</div>
+            <span class="hero-sub">Collectible principal across all active member accounts</span>
+          </div>
+
+          <!-- Hero Metric 2: Total Money Collected -->
+          <div class="hero-metric">
+            <span class="hero-label">Total Money Collected</span>
+            <div id="kpiTotalMoney" class="hero-val val-collected">₱0.00</div>
+            <span class="hero-sub">Gross cash inflows received (Principal + Interest + Penalties)</span>
+          </div>
+        </div>
+
+        <!-- Collections Composition Segmented Breakdown -->
+        <div class="breakdown-container">
+          <div class="breakdown-header">
+            <span class="breakdown-title">Collections Composition</span>
+            <span class="breakdown-total">100% Accounted</span>
+          </div>
+
+          <div class="segmented-bar" id="collectionsSegmentedBar">
+            <div id="barPrincipal" class="segment seg-principal" style="width: 0%;" title="Principal Paid"></div>
+            <div id="barInterest" class="segment seg-interest" style="width: 0%;" title="Interest Earned"></div>
+            <div id="barPenalties" class="segment seg-penalties" style="width: 0%;" title="Penalties Collected"></div>
+          </div>
+
+          <div class="breakdown-legend">
+            <div class="legend-item">
+              <span class="legend-dot dot-principal"></span>
+              <div class="legend-info">
+                <span class="legend-label">Principal Returned:</span>
+                <span id="kpiPrincipalCollected" class="legend-val">₱0.00</span>
+                <span id="pctPrincipal" class="legend-pct">(0%)</span>
+              </div>
+            </div>
+
+            <div class="legend-item">
+              <span class="legend-dot dot-interest"></span>
+              <div class="legend-info">
+                <span class="legend-label">Interest Revenue:</span>
+                <span id="kpiInterestEarned" class="legend-val">₱0.00</span>
+                <span id="pctInterest" class="legend-pct">(0%)</span>
+              </div>
+            </div>
+
+            <div class="legend-item">
+              <span class="legend-dot dot-penalties"></span>
+              <div class="legend-info">
+                <span class="legend-label">Late Penalties:</span>
+                <span id="kpiPenaltiesCollected" class="legend-val">₱0.00</span>
+                <span id="pctPenalties" class="legend-pct">(0%)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Unified Content Card -->
+      <section class="content-card">
+        <!-- Toolbar with Integrated Radar Filters and Table Search -->
+        <div class="content-toolbar">
+          <div class="radar-tabs-wrapper" id="loansRadarToolbar">
+            <button class="radar-tab-btn active" id="radarCardAll" onclick="filterLoansByRadar('all')" title="View all active loans">
+              <span>All Accounts</span>
+              <span class="tab-badge" id="kpiActiveLoans">0</span>
+            </button>
+            <button class="radar-tab-btn" id="radarCardToday" onclick="filterLoansByRadar('today')" title="Accounts due today">
+              <span class="status-indicator ind-today"></span>
+              <span>Due Today</span>
+              <span class="tab-badge" id="kpiDueToday">0</span>
+            </button>
+            <button class="radar-tab-btn" id="radarCardUpcoming" onclick="filterLoansByRadar('upcoming')" title="Accounts due in next 7 days">
+              <span class="status-indicator ind-upcoming"></span>
+              <span>Next 7 Days</span>
+              <span class="tab-badge" id="kpiUpcomingDue">0</span>
+            </button>
+            <button class="radar-tab-btn" id="radarCardGrace" onclick="filterLoansByRadar('grace')" title="Accounts in grace period (1-30d late)">
+              <span class="status-indicator ind-grace"></span>
+              <span>Grace Period</span>
+              <span class="tab-badge" id="kpiGracePeriod">0</span>
+            </button>
+            <button class="radar-tab-btn" id="radarCardPastGrace" onclick="filterLoansByRadar('past_grace')" title="Delinquent accounts past grace (>30d late)">
+              <span class="status-indicator ind-pastgrace"></span>
+              <span>Past Grace</span>
+              <span class="tab-badge" id="kpiPastGrace">0</span>
+            </button>
+          </div>
+
+          <div id="sectionTitle" style="font-size:13px; font-weight:700; color:#0f172a; display:none;">Database Records</div>
+
+          <div class="search-wrapper">
+            <span class="search-icon">
+              <svg class="icon" style="width:12px; height:12px;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </span>
+            <input type="text" id="tableSearch" class="search-input" placeholder="Search records..." oninput="handleTableSearch()" />
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <!-- 1. Active Loans Table -->
+          <table id="loansTable">
+            <thead>
+              <tr>
+                <th>Loan ID</th>
+                <th>Borrower Name</th>
+                <th style="text-align:right;">Remaining Balance</th>
+                <th style="text-align:right;">Monthly Due</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th style="text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="loansTableBody">
+              <tr><td colspan="7" style="text-align:center; padding:32px; color:var(--text-muted);">Loading active loans...</td></tr>
+            </tbody>
+          </table>
+
+          <!-- 2. Amortization Schedule View -->
+          <div id="amortViewSection" style="display:none;" class="amort-container">
+            <!-- Amortization Bar: Loan Picker & Direct Actions -->
+            <div class="amort-header-bar">
+              <div class="amort-selector-group">
+                <label>Loan Account:</label>
+                <select id="amortLoanSelect" class="amort-select" onchange="onAmortLoanSelectChange()">
+                  <option value="">-- Choose Loan to View Schedule --</option>
+                </select>
+              </div>
+              <div id="amortActionButtons" style="display:none; gap:6px;">
+                <button class="btn-table-action primary" onclick="payCurrentAmortLoan()">
+                  <svg class="icon" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                  <span>Record Payment</span>
+                </button>
+                <button class="btn-table-action" onclick="exportCurrentAmortPdf()">
+                  <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  <span>Export PDF</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Borrower & Loan Snapshot Strip -->
+            <div id="amortSummaryCard" style="display:none;" class="amort-snapshot">
+              <div class="snapshot-col">
+                <span class="snapshot-label">Borrower</span>
+                <span id="amortBorrowerName" class="snapshot-value">-</span>
+              </div>
+              <div class="snapshot-col">
+                <span class="snapshot-label">Principal & Term</span>
+                <span id="amortPrincipalTerm" class="snapshot-value">-</span>
+              </div>
+              <div class="snapshot-col">
+                <span class="snapshot-label">Monthly Amortization</span>
+                <span id="amortMonthlyDue" class="snapshot-value" style="color:#0f172a;">-</span>
+              </div>
+              <div class="snapshot-col">
+                <span class="snapshot-label">Remaining Balance</span>
+                <span id="amortRemBal" class="snapshot-value" style="color:#b45309;">-</span>
+              </div>
+              <div class="snapshot-col">
+                <span class="snapshot-label">Progress</span>
+                <span id="amortProgress" class="snapshot-value" style="color:#047857;">-</span>
+              </div>
+            </div>
+
+            <!-- Schedule Ledger Table -->
+            <div id="amortTableWrapper">
+              <table id="amortTable">
+                <thead>
+                  <tr>
+                    <th style="width:60px; text-align:center;">#</th>
+                    <th>Due Period</th>
+                    <th style="text-align:right;">Principal Bal.</th>
+                    <th style="text-align:right;">Principal Due</th>
+                    <th style="text-align:right;">Interest Due</th>
+                    <th style="text-align:right;">Total Due</th>
+                    <th style="text-align:right;">Amount Paid</th>
+                    <th style="text-align:right;">Penalty</th>
+                    <th style="text-align:center;">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="amortTableBody">
+                  <tr><td colspan="9" style="text-align:center; padding:32px; color:var(--text-muted);">Please select a loan account above to view its 36-month diminishing interest schedule.</td></tr>
+                </tbody>
+                <tfoot id="amortTableFoot" style="display:none; background:#f8fafc; font-weight:700; border-top:1px solid var(--border);">
+                  <tr>
+                    <td colspan="3" style="text-align:right; padding:10px 14px; font-size:11px; text-transform:uppercase; color:var(--text-secondary);">Schedule Totals:</td>
+                    <td id="amortTotalPrincipal" class="num" style="text-align:right; padding:10px 14px; color:#0f172a;">₱0.00</td>
+                    <td id="amortTotalInterest" class="num" style="text-align:right; padding:10px 14px; color:#0f766e;">₱0.00</td>
+                    <td id="amortTotalAmort" class="num" style="text-align:right; padding:10px 14px; color:#0f172a;">₱0.00</td>
+                    <td id="amortTotalPaid" class="num" style="text-align:right; padding:10px 14px; color:#047857;">₱0.00</td>
+                    <td colspan="2"></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+          <!-- 3. Borrowers Table -->
+          <table id="borrowersTable" style="display:none;">
+            <thead>
+              <tr>
+                <th>Borrower ID</th>
+                <th>Full Name</th>
+                <th>Phone Number</th>
+                <th>Email Address</th>
+                <th>Address</th>
+                <th>Date Joined</th>
+                <th style="text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="borrowersTableBody">
+              <tr><td colspan="7" style="text-align:center; padding:32px; color:var(--text-muted);">Loading borrowers directory...</td></tr>
+            </tbody>
+          </table>
+
+          <!-- 4. Recent Payments Table -->
+          <table id="paymentsTable" style="display:none;">
+            <thead>
+              <tr>
+                <th>Receipt #</th>
+                <th>Date</th>
+                <th>Borrower Name</th>
+                <th style="text-align:right;">Amount Paid</th>
+                <th>Method</th>
+                <th style="text-align:right;">Balance After</th>
+                <th style="text-align:right;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="paymentsTableBody">
+              <tr><td colspan="7" style="text-align:center; padding:32px; color:var(--text-muted);">Loading recent payments...</td></tr>
+            </tbody>
+          </table>
+
+          <!-- 5. Audit Trail Table -->
+          <table id="auditsTable" style="display:none;">
+            <thead>
+              <tr>
+                <th style="width:160px;">Timestamp</th>
+                <th style="width:200px;">User</th>
+                <th style="width:140px;">Action</th>
+                <th>Transaction Details</th>
+              </tr>
+            </thead>
+            <tbody id="auditsTableBody">
+              <tr><td colspan="4" style="text-align:center; padding:32px; color:var(--text-muted);">Loading audit logs...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ========================================================================
+       5. CLIENT JAVASCRIPT ENGINE
+       ======================================================================== -->
+  <script>
+    let globalDashboardData = null;
+    let currentUser = null;
+    let currentDataTab = 'loans';
+
+    // Format Money Utility
+    function formatMoney(val) {
+      const num = parseFloat(val) || 0;
+      return '₱' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // 1. App Initialization Lifecycle
+    window.addEventListener('DOMContentLoaded', function() {
+      checkExistingSession();
+    });
+
+    function checkExistingSession() {
+      const savedUser = sessionStorage.getItem('coop_cashier_user');
+      if (savedUser) {
+        try {
+          currentUser = JSON.parse(savedUser);
+          showDashboardView();
+          return;
+        } catch (e) {
+          sessionStorage.removeItem('coop_cashier_user');
+        }
+      }
+      setTimeout(() => {
+        hideSplash();
+        showAuthView();
+      }, 600);
+    }
+
+    function hideSplash() {
+      const splash = document.getElementById('splashScreen');
+      if (!splash) return;
+      splash.classList.add('fade-out');
+      setTimeout(() => {
+        splash.style.display = 'none';
+      }, 400);
+    }
+
+    function showAuthView() {
+      document.getElementById('authView').style.display = 'flex';
+      document.getElementById('dashboardView').style.display = 'none';
+    }
+
+    function showDashboardView() {
+      document.getElementById('authView').style.display = 'none';
+      document.getElementById('dashboardView').style.display = 'flex';
+
+      if (currentUser) {
+        document.getElementById('navUserName').innerText = currentUser.fullName || currentUser.username;
+        document.getElementById('navUserRole').innerText = currentUser.role || 'CASHIER';
+      }
+
+      loadLiveDashboardData();
+    }
+
+    // 2. Authentication Handlers & Show Password Toggle
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      
+      // Update SVG eye icon
+      if (isPassword) {
+        // Eye-off / slashed icon
+        btn.innerHTML = `
+          <svg class="pwd-eye-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+            <line x1="1" y1="1" x2="23" y2="23"/>
+          </svg>
+        `;
+        btn.title = "Hide Password";
+      } else {
+        // Standard eye icon
+        btn.innerHTML = `
+          <svg class="pwd-eye-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        `;
+        btn.title = "Show Password";
+      }
+    }
+
+    function handleSignIn(e) {
+      e.preventDefault();
+      const u = document.getElementById('loginUsername').value.trim();
+      const p = document.getElementById('loginPassword').value.trim();
+      const btn = document.getElementById('loginSubmitBtn');
+      const err = document.getElementById('authError');
+
+      btn.disabled = true;
+      btn.innerText = 'Verifying credentials...';
+      err.style.display = 'none';
+
+      google.script.run
+        .withSuccessHandler(function(res) {
+          btn.disabled = false;
+          btn.innerText = 'Sign In to Dashboard';
+          if (res && res.success) {
+            currentUser = res.user;
+            sessionStorage.setItem('coop_cashier_user', JSON.stringify(currentUser));
+            showDashboardView();
+          } else {
+            err.innerText = res && res.message ? res.message : 'Invalid credentials.';
+            err.style.display = 'block';
+          }
+        })
+        .withFailureHandler(function(error) {
+          btn.disabled = false;
+          btn.innerText = 'Sign In to Dashboard';
+          err.innerText = 'Server error: ' + (error.message || error);
+          err.style.display = 'block';
+        })
+        .authenticateUser(u, p);
+    }
+
+    function handleLogout() {
+      sessionStorage.removeItem('coop_cashier_user');
+      currentUser = null;
+      showAuthView();
+    }
+
+    // 3. Live Dashboard Data Management
+    function loadLiveDashboardData() {
+      const splashStatus = document.getElementById('splashStatus');
+      if (splashStatus) splashStatus.innerText = 'FETCHING LIVE FINANCIAL DATA...';
+
+      google.script.run
+        .withSuccessHandler(function(data) {
+          hideSplash();
+          if (data && data.success) {
+            globalDashboardData = data;
+            renderMetrics(data.metrics);
+            applyLoansFilters();
+            populateAmortLoanPicker(data.activeLoans);
+            renderBorrowersTable(data.borrowers);
+            renderPaymentsTable(data.recentPayments);
+            renderAuditsTable(data.auditLogs);
+
+            if (data.masterSheetUrl) {
+              const link = document.getElementById('btnMasterSheet');
+              link.href = data.masterSheetUrl;
+            }
+          } else {
+            alert('Failed to load data: ' + (data ? data.message : 'Unknown error'));
+          }
+        })
+        .withFailureHandler(function(err) {
+          hideSplash();
+          alert('Error contacting Google Sheets: ' + (err.message || err));
+        })
+        .getWebDashboardData();
+    }
+
+    function refreshDashboardData() {
+      const btn = event ? event.currentTarget : null;
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg><span>Syncing...</span>';
+      }
+      google.script.run
+        .withSuccessHandler(function(data) {
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg><span>Sync</span>';
+          }
+          if (data && data.success) {
+            globalDashboardData = data;
+            renderMetrics(data.metrics);
+            applyLoansFilters();
+            populateAmortLoanPicker(data.activeLoans);
+            renderBorrowersTable(data.borrowers);
+            renderPaymentsTable(data.recentPayments);
+            renderAuditsTable(data.auditLogs);
+            if (currentDataTab === 'amort' && currentAmortData && currentAmortData.loan) {
+              loadLoanAmortization(currentAmortData.loan.loanId);
+            }
+          }
+        })
+        .withFailureHandler(function(err) {
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg><span>Sync</span>';
+          }
+          alert('Sync error: ' + (err.message || err));
+        })
+        .getWebDashboardData();
+    }
+
+    function renderMetrics(m) {
+      if (!m) return;
+      // Section 1: Financial Collections Breakdown
+      const elOutstanding = document.getElementById('kpiOutstanding');
+      if (elOutstanding) elOutstanding.innerText = formatMoney(m.totalOutstandingBalance || m.totalOutstandingPrincipal || 0);
+
+      const elTotalMoney = document.getElementById('kpiTotalMoney');
+      if (elTotalMoney) elTotalMoney.innerText = formatMoney(m.totalMoneyCollected || 0);
+
+      const elPrincipal = document.getElementById('kpiPrincipalCollected');
+      if (elPrincipal) elPrincipal.innerText = formatMoney(m.totalPrincipalCollected || 0);
+
+      const elInterest = document.getElementById('kpiInterestEarned');
+      if (elInterest) elInterest.innerText = formatMoney(m.totalInterestEarned || 0);
+
+      const elPenalties = document.getElementById('kpiPenaltiesCollected');
+      if (elPenalties) elPenalties.innerText = formatMoney(m.totalPenaltiesCollected || 0);
+
+      // Collections Composition Segmented Progress Bar & Percentages
+      const totalMoney = Number(m.totalMoneyCollected || 0);
+      const prin = Number(m.totalPrincipalCollected || 0);
+      const intr = Number(m.totalInterestEarned || 0);
+      const pen = Number(m.totalPenaltiesCollected || 0);
+
+      let pctPrin = 0;
+      let pctIntr = 0;
+      let pctPen = 0;
+
+      if (totalMoney > 0) {
+        pctPrin = ((prin / totalMoney) * 100).toFixed(1);
+        pctIntr = ((intr / totalMoney) * 100).toFixed(1);
+        pctPen = ((pen / totalMoney) * 100).toFixed(1);
+      }
+
+      const barP = document.getElementById('barPrincipal');
+      const barI = document.getElementById('barInterest');
+      const barPen = document.getElementById('barPenalties');
+
+      if (barP) barP.style.width = (totalMoney > 0 ? pctPrin : 0) + '%';
+      if (barI) barI.style.width = (totalMoney > 0 ? pctIntr : 0) + '%';
+      if (barPen) barPen.style.width = (totalMoney > 0 ? pctPen : 0) + '%';
+
+      const pctPrinEl = document.getElementById('pctPrincipal');
+      if (pctPrinEl) pctPrinEl.innerText = totalMoney > 0 ? `(${pctPrin}%)` : '(0%)';
+
+      const pctIntrEl = document.getElementById('pctInterest');
+      if (pctIntrEl) pctIntrEl.innerText = totalMoney > 0 ? `(${pctIntr}%)` : '(0%)';
+
+      const pctPenEl = document.getElementById('pctPenalties');
+      if (pctPenEl) pctPenEl.innerText = totalMoney > 0 ? `(${pctPen}%)` : '(0%)';
+
+      const execActiveLoans = document.getElementById('execActiveLoansCount');
+      if (execActiveLoans) execActiveLoans.innerText = m.activeLoansCount || 0;
+
+      // Section 2: Collections Radar Counts
+      const elActive = document.getElementById('kpiActiveLoans');
+      if (elActive) elActive.innerText = m.activeLoansCount || 0;
+
+      const elDueToday = document.getElementById('kpiDueToday');
+      if (elDueToday) elDueToday.innerText = m.dueTodayCount || 0;
+
+      const elUpcoming = document.getElementById('kpiUpcomingDue');
+      if (elUpcoming) elUpcoming.innerText = m.upcomingDueCount || 0;
+
+      const elGrace = document.getElementById('kpiGracePeriod');
+      if (elGrace) elGrace.innerText = (m.withinGraceCount !== undefined) ? m.withinGraceCount : (m.gracePeriodCount || 0);
+
+      const elPastGrace = document.getElementById('kpiPastGrace');
+      if (elPastGrace) elPastGrace.innerText = (m.pastGraceCount !== undefined) ? m.pastGraceCount : (m.overdueCount || 0);
+    }
+
+    let currentRadarFilter = 'all';
+
+    function filterLoansByRadar(tier) {
+      currentRadarFilter = tier || 'all';
+      if (currentDataTab !== 'loans') {
+        switchDataTab('loans');
+      }
+
+      const cardMap = {
+        'all': 'radarCardAll',
+        'today': 'radarCardToday',
+        'upcoming': 'radarCardUpcoming',
+        'grace': 'radarCardGrace',
+        'past_grace': 'radarCardPastGrace'
+      };
+
+      document.querySelectorAll('.radar-tab-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = document.getElementById(cardMap[currentRadarFilter]);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      applyLoansFilters();
+    }
+
+    function applyLoansFilters() {
+      if (!globalDashboardData || !globalDashboardData.activeLoans) return;
+      const searchInput = document.getElementById('tableSearch');
+      const q = (searchInput ? searchInput.value : '').toLowerCase().trim();
+      let list = globalDashboardData.activeLoans;
+
+      if (currentRadarFilter === 'today') {
+        list = list.filter(l => l.isDueToday);
+      } else if (currentRadarFilter === 'upcoming') {
+        list = list.filter(l => l.isUpcoming);
+      } else if (currentRadarFilter === 'grace') {
+        list = list.filter(l => l.isGracePeriod);
+      } else if (currentRadarFilter === 'past_grace') {
+        list = list.filter(l => l.isPastGracePeriod);
+      }
+
+      if (q) {
+        list = list.filter(l =>
+          (l.borrowerName && l.borrowerName.toLowerCase().includes(q)) ||
+          (l.loanId && l.loanId.toLowerCase().includes(q))
+        );
+      }
+
+      renderLoansTable(list);
+    }
+
+    function renderLoansTable(loans) {
+      const tbody = document.getElementById('loansTableBody');
+      if (!loans || loans.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:32px; color:var(--text-muted);">No active loans found matching current filter.</td></tr>';
+        return;
+      }
+
+      let html = '';
+      loans.forEach(l => {
+        let statusBadge = '<span class="status-badge status-ontime">ON TIME</span>';
+        if (l.isPastGracePeriod) {
+          statusBadge = `<span class="status-badge status-overdue">PAST GRACE (${l.daysOverdue}d)</span>`;
+        } else if (l.isGracePeriod) {
+          statusBadge = `<span class="status-badge status-grace">GRACE (${l.daysOverdue}d)</span>`;
+        } else if (l.isDueToday) {
+          statusBadge = '<span class="status-badge status-today">DUE TODAY</span>';
+        } else if (l.isUpcoming) {
+          statusBadge = `<span class="status-badge status-upcoming">UPCOMING (${l.daysUntilDue}d)</span>`;
+        }
+
+        html += `
+          <tr>
+            <td class="num"><strong>${l.loanId}</strong></td>
+            <td><strong>${l.borrowerName}</strong></td>
+            <td class="num" style="text-align:right; font-weight:700; color:#0f172a;">${formatMoney(l.remainingBalance)}</td>
+            <td class="num" style="text-align:right;">${formatMoney(l.monthlyAmortization)}</td>
+            <td>${l.dueDate || '-'}</td>
+            <td>${statusBadge}</td>
+            <td style="text-align:right; white-space:nowrap;">
+              <button class="btn-table-action" onclick="viewLoanAmortization('${l.loanId}')" title="View Full Amortization Schedule">
+                <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span>Schedule</span>
+              </button>
+              <button class="btn-table-action primary" onclick="openPaymentForLoan('${l.loanId}')" title="Record Payment">
+                <svg class="icon" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                <span>Pay</span>
+              </button>
+              <button class="btn-table-action" onclick="openModalDialog('EditLoanDialog', 'Edit Loan Record & Terms', '${l.loanId}')" title="Edit Loan">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
+    }
+
+    function renderBorrowersTable(borrowers) {
+      const tbody = document.getElementById('borrowersTableBody');
+      if (!borrowers || borrowers.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:32px; color:var(--text-muted);">No borrowers registered yet.</td></tr>';
+        return;
+      }
+      let html = '';
+      borrowers.forEach(b => {
+        const bId = b.borrowerId || b.id || '';
+        html += `
+          <tr>
+            <td class="num"><strong>${bId || '-'}</strong></td>
+            <td><strong>${b.borrowerName || b.name || '-'}</strong></td>
+            <td>${b.phone || '-'}</td>
+            <td>${b.email || '-'}</td>
+            <td>${b.address || '-'}</td>
+            <td>${b.dateJoined || '-'}</td>
+            <td style="text-align:right; white-space:nowrap;">
+              <button class="btn-table-action primary" onclick="openModalDialog('NewLoanDialog', 'Create Loan & Amortization Schedule', '${bId}')" title="Create New Loan">
+                <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>Loan</span>
+              </button>
+              <button class="btn-table-action" onclick="openModalDialog('EditBorrowerDialog', 'Edit Borrower Information', '${bId}')" title="Edit Member">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                <span>Edit</span>
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
+    }
+
+    function renderPaymentsTable(payments) {
+      const tbody = document.getElementById('paymentsTableBody');
+      if (!payments || payments.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:32px; color:var(--text-muted);">No payment records found.</td></tr>';
+        return;
+      }
+      let html = '';
+      payments.forEach(p => {
+        const isVoid = !!p.isVoided;
+        html += `
+          <tr ${isVoid ? 'style="opacity:0.65; background:rgba(239,68,68,0.03);"' : ''}>
+            <td class="num"><strong>${p.receiptNo}</strong></td>
+            <td>${p.datePaid}</td>
+            <td><strong>${p.borrowerName}</strong></td>
+            <td class="num" style="text-align:right; color:${isVoid ? '#94a3b8' : '#047857'}; font-weight:700; ${isVoid ? 'text-decoration:line-through;' : ''}">${formatMoney(p.amountPaid)}</td>
+            <td><span class="status-badge ${isVoid ? 'status-overdue' : 'status-grace'}">${p.method}</span></td>
+            <td class="num" style="text-align:right;">${formatMoney(p.balanceAfter)}</td>
+            <td style="text-align:right; white-space:nowrap;">
+              ${isVoid ? `
+                <button class="btn-table-action" disabled style="opacity:0.4; cursor:not-allowed;" title="Payment Already Voided">
+                  <span>Voided</span>
+                </button>
+              ` : `
+                <button class="btn-table-action danger" onclick="openModalDialog('VoidPaymentDialog', 'Void / Reverse Error Payment', '${p.receiptNo}')" title="Void Payment">
+                  <svg class="icon" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                  <span>Void</span>
+                </button>
+              `}
+            </td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
+    }
+
+    function renderAuditsTable(audits) {
+      const tbody = document.getElementById('auditsTableBody');
+      if (!audits || audits.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:32px; color:var(--text-muted);">No audit records found.</td></tr>';
+        return;
+      }
+      let html = '';
+      audits.forEach(a => {
+        html += `
+          <tr>
+            <td class="num" style="color:var(--text-muted); font-size:11px;">${a.timestamp}</td>
+            <td><strong>${a.user || 'System'}</strong></td>
+            <td><span class="status-badge status-grace">${a.action}</span></td>
+            <td style="color:#334155;">${a.details}</td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
+    }
+
+    // 4. Tab Navigation & Table Filtering
+    function switchDataTab(tab) {
+      currentDataTab = tab;
+      document.getElementById('tabLoansBtn').classList.toggle('active', tab === 'loans');
+      document.getElementById('tabAmortBtn').classList.toggle('active', tab === 'amort');
+      document.getElementById('tabBorrowersBtn').classList.toggle('active', tab === 'borrowers');
+      document.getElementById('tabPaymentsBtn').classList.toggle('active', tab === 'payments');
+      document.getElementById('tabAuditsBtn').classList.toggle('active', tab === 'audits');
+
+      document.getElementById('loansTable').style.display = (tab === 'loans') ? 'table' : 'none';
+      document.getElementById('amortViewSection').style.display = (tab === 'amort') ? 'block' : 'none';
+      document.getElementById('borrowersTable').style.display = (tab === 'borrowers') ? 'table' : 'none';
+      document.getElementById('paymentsTable').style.display = (tab === 'payments') ? 'table' : 'none';
+      document.getElementById('auditsTable').style.display = (tab === 'audits') ? 'table' : 'none';
+
+      // Update Section Header Title & Contextual Radar Toolbar
+      const titleMap = {
+        loans: 'Active Loans & Dues',
+        amort: 'Amortization Schedule Ledger',
+        borrowers: 'Borrowers Directory',
+        payments: 'Recent Receipts & Collections',
+        audits: 'System Audit Trail'
+      };
+      const titleElem = document.getElementById('sectionTitle');
+      const radarToolbar = document.getElementById('loansRadarToolbar');
+
+      if (tab === 'loans') {
+        if (radarToolbar) radarToolbar.style.display = 'flex';
+        if (titleElem) titleElem.style.display = 'none';
+        applyLoansFilters();
+      } else {
+        if (radarToolbar) radarToolbar.style.display = 'none';
+        if (titleElem) {
+          titleElem.style.display = 'block';
+          titleElem.innerText = titleMap[tab] || 'Database Records';
+        }
+      }
+
+      const searchWrapper = document.querySelector('.search-wrapper');
+      if (searchWrapper) {
+        searchWrapper.style.display = (tab === 'amort') ? 'none' : 'block';
+      }
+    }
+
+    // 4.1 Amortization Schedule Engine
+    let currentAmortData = null;
+
+    function populateAmortLoanPicker(loans) {
+      const select = document.getElementById('amortLoanSelect');
+      if (!select) return;
+      const currentVal = select.value;
+      select.innerHTML = '<option value="">-- Choose Loan to View Schedule --</option>';
+      if (loans && loans.length > 0) {
+        loans.forEach(l => {
+          const opt = document.createElement('option');
+          opt.value = l.loanId;
+          opt.textContent = `${l.loanId} — ${l.borrowerName} (Bal: ₱${Number(l.remainingBalance || 0).toLocaleString()})`;
+          select.appendChild(opt);
+        });
+      }
+      if (currentVal) select.value = currentVal;
+    }
+
+    function onAmortLoanSelectChange() {
+      const loanId = document.getElementById('amortLoanSelect').value;
+      if (!loanId) {
+        document.getElementById('amortSummaryCard').style.display = 'none';
+        document.getElementById('amortActionButtons').style.display = 'none';
+        document.getElementById('amortTableFoot').style.display = 'none';
+        document.getElementById('amortTableBody').innerHTML = '<tr><td colspan="9" style="text-align:center; padding:32px; color:var(--text-muted);">Please select a loan account above to view its amortization schedule.</td></tr>';
+        currentAmortData = null;
+        return;
+      }
+      loadLoanAmortization(loanId);
+    }
+
+    function viewLoanAmortization(loanId) {
+      switchDataTab('amort');
+      const select = document.getElementById('amortLoanSelect');
+      if (select) select.value = loanId;
+      loadLoanAmortization(loanId);
+    }
+
+    function loadLoanAmortization(loanId) {
+      const tbody = document.getElementById('amortTableBody');
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:32px; color:var(--text-muted);">Loading schedule from database...</td></tr>';
+      document.getElementById('amortActionButtons').style.display = 'none';
+      document.getElementById('amortSummaryCard').style.display = 'none';
+      document.getElementById('amortTableFoot').style.display = 'none';
+
+      google.script.run
+        .withSuccessHandler(function(res) {
+          if (res && res.success) {
+            currentAmortData = res;
+            renderAmortizationSchedule(res);
+          } else {
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:28px; color:var(--danger); font-weight:700;">Failed to load schedule: ' + (res ? res.message : 'Unknown error') + '</td></tr>';
+          }
+        })
+        .withFailureHandler(function(err) {
+          tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:28px; color:var(--danger); font-weight:700;">Error: ' + (err.message || err) + '</td></tr>';
+        })
+        .getLoanAmortizationSchedule(loanId);
+    }
+
+    function renderAmortizationSchedule(res) {
+      const l = res.loan;
+      const s = res.summary;
+      const rows = res.schedule;
+
+      // Update Summary Header
+      document.getElementById('amortSummaryCard').style.display = 'grid';
+      document.getElementById('amortActionButtons').style.display = 'flex';
+      document.getElementById('amortBorrowerName').innerText = `${l.borrowerName} (${l.loanId})`;
+      document.getElementById('amortPrincipalTerm').innerText = `₱${Number(l.loanAmount || 0).toLocaleString()} • ${l.months} Mos @ ${l.interestRate}%`;
+      document.getElementById('amortMonthlyDue').innerText = formatMoney(rows.length > 1 ? rows[1].monthlyAmort : 0);
+      document.getElementById('amortRemBal').innerText = formatMoney(l.remainingBalance);
+      document.getElementById('amortProgress').innerText = `${s.paidCount} / ${s.totalMonths} Paid`;
+
+      // Render Rows
+      const tbody = document.getElementById('amortTableBody');
+      let html = '';
+
+      rows.forEach(r => {
+        if (r.isStart) {
+          html += `
+            <tr style="background:#f8fafc; font-weight:600;">
+              <td style="text-align:center;"><span class="status-badge status-grace">START</span></td>
+              <td>${r.monthName || 'Loan Origination'}</td>
+              <td class="num" style="text-align:right; font-weight:700; color:#0f172a;">${formatMoney(r.principal)}</td>
+              <td style="text-align:center; color:var(--text-muted);">-</td>
+              <td style="text-align:center; color:var(--text-muted);">-</td>
+              <td style="text-align:center; color:var(--text-muted);">-</td>
+              <td style="text-align:center; color:var(--text-muted);">-</td>
+              <td style="text-align:center; color:var(--text-muted);">-</td>
+              <td style="text-align:center;"><span class="status-badge status-grace">GRANTED</span></td>
+            </tr>
+          `;
+        } else {
+          let badgeClass = 'status-ontime';
+          let st = (r.status || 'Pending').toUpperCase();
+          if (st === 'PAID') {
+            badgeClass = 'status-ontime';
+          } else if (st.includes('OVERDUE') || st.includes('UNDERPAID')) {
+            badgeClass = 'status-overdue';
+          } else {
+            badgeClass = 'status-grace';
+          }
+
+          const hasPaid = r.amountPaid > 0;
+          const paidStyle = hasPaid ? 'color:#047857; font-weight:600;' : 'color:var(--text-muted);';
+
+          html += `
+            <tr>
+              <td style="text-align:center; color:var(--text-muted);">#${r.monthNum}</td>
+              <td>${r.monthName}</td>
+              <td class="num" style="text-align:right;">${formatMoney(r.principal)}</td>
+              <td class="num" style="text-align:right;">${formatMoney(r.amortization)}</td>
+              <td class="num" style="text-align:right; color:#0f766e;">${formatMoney(r.interestPay)}</td>
+              <td class="num" style="text-align:right; font-weight:600; color:#0f172a;">${formatMoney(r.monthlyAmort)}</td>
+              <td class="num" style="text-align:right; ${paidStyle}">${hasPaid ? formatMoney(r.amountPaid) : '-'}</td>
+              <td class="num" style="text-align:right; color:#b45309;">${r.penalty > 0 ? formatMoney(r.penalty) : '-'}</td>
+              <td style="text-align:center;"><span class="status-badge ${badgeClass}">${st}</span></td>
+            </tr>
+          `;
+        }
+      });
+      tbody.innerHTML = html;
+
+      // Update Footer Totals
+      document.getElementById('amortTableFoot').style.display = 'table-footer-group';
+      document.getElementById('amortTotalPrincipal').innerText = formatMoney(s.sumPrincipal);
+      document.getElementById('amortTotalInterest').innerText = formatMoney(s.sumInterest);
+      document.getElementById('amortTotalAmort').innerText = formatMoney(s.sumAmort);
+      document.getElementById('amortTotalPaid').innerText = formatMoney(s.sumAmountPaid);
+    }
+
+    function payCurrentAmortLoan() {
+      if (!currentAmortData || !currentAmortData.loan) return;
+      openPaymentForLoan(currentAmortData.loan.loanId);
+    }
+
+    function exportCurrentAmortPdf() {
+      if (!currentAmortData || !currentAmortData.loan) return;
+      openModalDialog('ExportPdfDialog', 'Export Amortization Statement PDF', currentAmortData.loan.loanId);
+    }
+
+    function handleTableSearch() {
+      const q = document.getElementById('tableSearch').value.toLowerCase().trim();
+      if (!globalDashboardData) return;
+
+      if (currentDataTab === 'loans') {
+        applyLoansFilters();
+      } else if (currentDataTab === 'borrowers') {
+        const filtered = globalDashboardData.borrowers.filter(b =>
+          (b.name && b.name.toLowerCase().includes(q)) ||
+          (b.borrowerName && b.borrowerName.toLowerCase().includes(q)) ||
+          (b.id && b.id.toLowerCase().includes(q))
+        );
+        renderBorrowersTable(filtered);
+      } else if (currentDataTab === 'payments') {
+        const filtered = globalDashboardData.recentPayments.filter(p =>
+          (p.borrowerName && p.borrowerName.toLowerCase().includes(q)) ||
+          (p.receiptNo && p.receiptNo.toLowerCase().includes(q))
+        );
+        renderPaymentsTable(filtered);
+      } else if (currentDataTab === 'audits') {
+        const filtered = (globalDashboardData.auditLogs || []).filter(a =>
+          (a.details && a.details.toLowerCase().includes(q)) ||
+          (a.action && a.action.toLowerCase().includes(q)) ||
+          (a.user && a.user.toLowerCase().includes(q))
+        );
+        renderAuditsTable(filtered);
+      }
+    }
+
+    // 5. Interactive Modal Dialog Launcher (Renders existing dialogs seamlessly)
+    function openModalDialog(dialogName, title, preselectedId) {
+      closeAdminDropdown();
+      const overlay = document.getElementById('modalOverlay');
+      const titleElem = document.getElementById('modalTitle');
+      const frame = document.getElementById('modalFrame');
+      const loading = document.getElementById('modalLoading');
+
+      titleElem.innerText = title;
+      loading.style.display = 'block';
+      frame.style.display = 'none';
+      overlay.style.display = 'flex';
+
+      google.script.run
+        .withSuccessHandler(function(res) {
+          if (res && res.success && res.html) {
+            loading.style.display = 'none';
+            frame.style.display = 'block';
+
+            // Bridge child iframe to parent window for google.script.run & google.script.host.close()
+            const bridgeScript = `
+              <script>
+                window.google = window.parent.google;
+                if (!window.google) window.google = {};
+                if (!window.google.script) window.google.script = (window.parent && window.parent.google && window.parent.google.script) || {};
+                window.google.script.host = {
+                  close: function() {
+                    if (window.parent && window.parent.closeModalDialog) {
+                      window.parent.closeModalDialog(true);
+                    }
+                  }
+                };
+                window.preselectedId = '${preselectedId || ''}';
+                window.preselectedLoanId = '${preselectedId || ''}';
+              <\/script>
+            `;
+
+            const doc = frame.contentDocument || frame.contentWindow.document;
+            doc.open();
+            doc.write(bridgeScript + res.html);
+            doc.close();
+          } else {
+            loading.innerHTML = '<div style="color:var(--danger); padding:24px; font-weight:700;">Failed to load dialog: ' + (res ? res.message : 'Unknown error') + '</div>';
+          }
+        })
+        .withFailureHandler(function(err) {
+          loading.innerHTML = '<div style="color:var(--danger); padding:24px; font-weight:700;">Error: ' + (err.message || err) + '</div>';
+        })
+        .getDialogHtml(dialogName);
+    }
+
+    function closeModalDialog(shouldRefresh) {
+      const overlay = document.getElementById('modalOverlay');
+      overlay.style.display = 'none';
+      const frame = document.getElementById('modalFrame');
+      frame.src = 'about:blank';
+      if (shouldRefresh) {
+        refreshDashboardData();
+      }
+    }
+
+    function handleOverlayClick(e) {
+      if (e.target.id === 'modalOverlay') {
+        closeModalDialog();
+      }
+    }
+
+    function toggleAdminDropdown(e) {
+      e.stopPropagation();
+      const menu = document.getElementById('adminDropdownMenu');
+      if (menu) menu.classList.toggle('show');
+    }
+
+    function closeAdminDropdown() {
+      const menu = document.getElementById('adminDropdownMenu');
+      if (menu) menu.classList.remove('show');
+    }
+
+    window.addEventListener('click', function() {
+      closeAdminDropdown();
+    });
+
+    function handleSetupDatabase() {
+      closeAdminDropdown();
+      if (!confirm("Verify & Initialize Database Sheets?\n\nThis will check that all required sheets and headers exist.\nExisting loan and borrower data will NOT be deleted.")) {
+        return;
+      }
+      const splash = document.getElementById('splashScreen');
+      const splashStatus = document.getElementById('splashStatus');
+      splashStatus.innerText = 'INITIALIZING DATABASE TABLES...';
+      splash.style.display = 'flex';
+      splash.classList.remove('fade-out');
+
+      google.script.run
+        .withSuccessHandler(function(res) {
+          hideSplash();
+          alert(res && res.message ? res.message : 'Database verified successfully!');
+          refreshDashboardData();
+        })
+        .withFailureHandler(function(err) {
+          hideSplash();
+          alert('Initialization failed: ' + (err.message || err));
+        })
+        .runSetupDatabase();
+    }
+
+    function openPaymentModalAction() {
+      openModalDialog('PaymentDialog', 'Record Payment & Issue Official Receipt');
+    }
+    function openNewLoanModalAction() {
+      openModalDialog('NewLoanDialog', 'Create Loan & Amortization Schedule');
+    }
+    function openBorrowerModalAction() {
+      openModalDialog('BorrowerDialog', 'Register New Borrower');
+    }
+    function openRemindersModalAction() {
+      openModalDialog('ReminderDialog', 'Payment Reminders & Due Date Hub');
+    }
+    function openPdfModalAction() {
+      openModalDialog('ExportPdfDialog', 'Export Amortization Statement PDF');
+    }
+    function openPaymentForLoan(loanId) {
+      openModalDialog('PaymentDialog', 'Record Payment & Issue Official Receipt', loanId);
+    }
+  </script>
+
+  <!-- Interactive Modal Dialog Container -->
+  <div id="modalOverlay" onclick="handleOverlayClick(event)">
+    <div class="modal-container" id="modalContainer">
+      <div class="modal-header">
+        <span id="modalTitle" class="modal-title">Dialog</span>
+        <button class="modal-close" onclick="closeModalDialog()" title="Close dialog">&times;</button>
+      </div>
+      <div id="modalLoading" style="padding:40px 20px; text-align:center; color:var(--text-muted);">
+        <div style="font-weight:600; font-size:13px;">Loading dialog form...</div>
+      </div>
+      <iframe id="modalFrame" class="modal-iframe" style="width:100%; flex:1; border:none; display:none;"></iframe>
+    </div>
+  </div>
+</body>
+</html>

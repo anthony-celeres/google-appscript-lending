@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg-color: #ffffff;
+        --border-color: #cbd5e1;
+        --teal-primary: #0f766e;
+        --teal-hover: #115e59;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        padding: 24px;
+      }
+      .header-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      .icon-box {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+      }
+      h3 { font-size: 17px; font-weight: 800; color: #0f766e; letter-spacing: -0.01em; }
+      p.subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; font-weight: 500; }
+      .form-group { margin-bottom: 14px; }
+      label {
+        display: block;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #334155;
+        margin-bottom: 6px;
+      }
+      input, select {
+        width: 100%;
+        padding: 11px 13px;
+        border-radius: 12px;
+        border: 1.5px solid #cbd5e1;
+        background-color: #ffffff;
+        color: var(--text-main);
+        font-size: 13px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+      }
+      input:focus, select:focus {
+        outline: none;
+        border-color: #0f766e;
+        box-shadow: 0 0 0 3.5px rgba(15, 118, 110, 0.15);
+      }
+      .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .btn {
+        width: 100%;
+        padding: 13px;
+        border: none;
+        border-radius: 12px;
+        background-color: #0f766e;
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 13.5px;
+        cursor: pointer;
+        margin-top: 8px;
+        box-shadow: 0 4px 14px rgba(15, 118, 110, 0.25);
+        transition: all 0.2s ease;
+      }
+      .btn:hover {
+        background-color: #115e59;
+        box-shadow: 0 6px 18px rgba(15, 118, 110, 0.35);
+      }
+      #status {
+        margin-top: 12px;
+        font-size: 12.5px;
+        font-weight: 700;
+        text-align: center;
+        min-height: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header-card">
+      <div class="icon-box">
+        <svg class="icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#0f766e" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div>
+        <h3>Register New Borrower</h3>
+        <p class="subtitle">Add Member to Cooperative Database</p>
+      </div>
+    </div>
+
+    <form id="borrowerForm" onsubmit="submitForm(event)">
+      <div class="form-group">
+        <label>Borrower Full Name</label>
+        <input type="text" id="borrowerName" placeholder="e.g. Juan M. dela Cruz, Jr." required />
+      </div>
+
+      <div class="form-group">
+        <label>Home Address</label>
+        <input type="text" id="address" placeholder="123 Rizal Ave, Quezon City" required />
+      </div>
+
+      <div class="grid">
+        <div class="form-group">
+          <label>Mobile Number</label>
+          <input type="text" id="phone" placeholder="+63 917 555 0192" required />
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="email" placeholder="juan.delacruz@example.com" required />
+          <p style="font-size:11px; color:#64748b; margin-top:4px;">Automated welcome confirmation email will be sent here.</p>
+        </div>
+      </div>
+
+      <button type="submit" id="submitBtn" class="btn">Save Borrower Record</button>
+      <div id="status"></div>
+    </form>
+
+    <script>
+      function submitForm(e) {
+        e.preventDefault();
+        const bName = document.getElementById('borrowerName').value.trim();
+        if (!bName) {
+          document.getElementById('status').innerHTML = '<span style="color:#dc2626;">Please enter the borrower\'s full name.</span>';
+          return;
+        }
+
+        const submitBtn = document.getElementById('submitBtn');
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.style.opacity = '0.6';
+          submitBtn.style.cursor = 'not-allowed';
+          submitBtn.innerText = 'Saving Borrower...';
+        }
+
+        document.getElementById('status').innerHTML = '<span style="color:#0f766e;">Saving borrower & sending welcome email...</span>';
+        
+        const formData = {
+          borrowerName: bName,
+          address: document.getElementById('address').value.trim(),
+          phone: document.getElementById('phone').value.trim(),
+          email: document.getElementById('email').value.trim()
+        };
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            if (submitBtn) {
+              submitBtn.innerText = 'Saved!';
+            }
+            const emailMsg = (res && res.emailSent && res.email) ? ' Confirmation emailed to ' + res.email + '!' : '';
+            document.getElementById('status').innerHTML = '<span style="color:#059669;">Borrower ' + res.borrowerId + ' (' + bName + ') saved successfully!' + emailMsg + '</span>';
+            setTimeout(() => google.script.host.close(), 1800);
+          })
+          .withFailureHandler(function(err) {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.style.opacity = '1';
+              submitBtn.style.cursor = 'pointer';
+              submitBtn.innerText = 'Save Borrower Record';
+            }
+            document.getElementById('status').innerHTML = '<span style="color:#dc2626;">Error: ' + err.message + '</span>';
+          })
+          .processCreateBorrower(formData);
+      }
+    </script>
+  </body>
+</html>
